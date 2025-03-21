@@ -11,7 +11,7 @@ import torch.nn as nn
 import torch.optim as optim
 
 class CardNN(nn.Module):
-    def __init__(self, input_size=36, output_size=36):
+    def __init__(self, input_size=36, output_size=37):
         super(CardNN, self).__init__()
         self.fc1 = nn.Linear(input_size, 128)
         self.fc2 = nn.Linear(128, 64)

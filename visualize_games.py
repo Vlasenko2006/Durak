@@ -17,17 +17,7 @@ suit_symbols = {
 }
 
 def visualize_games(game_log):
-    # Print all logs
-    print("\n")
-    print("\n")
-    print("==========================")
-    for log_entry in game_log:
-        print("Log Entry:", log_entry)
 
-    print("\n")
-    print("\n")
-    print("==========================")
-    
     # Group game logs by episode
     episodes = {}
     for log_entry in game_log:
@@ -36,7 +26,7 @@ def visualize_games(game_log):
             episodes[episode] = []
         episodes[episode].append(log_entry)
 
-    fig, axes = plt.subplots(3, 1, figsize=(15, 15))
+    fig, axes = plt.subplots(3, 1, figsize=(7, 7))
 
     if len(episodes) == 1:
         axes = [axes]  # Ensure axes is iterable

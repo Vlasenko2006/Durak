@@ -9,7 +9,7 @@ from visualize_games import visualize_games
 # Hyperparameters
 gamma = 0.99
 batch_size = 64
-num_episodes = 100
+num_episodes = 3
 num_games_to_visualize = 3
 
 # Unicode characters for card suits
@@ -37,10 +37,25 @@ def train_networks():
         game = DurakGame()
         state_attacker = torch.tensor(game.get_state(0), dtype=torch.float32, requires_grad=True).unsqueeze(0)
         state_defender = torch.tensor(game.get_state(1), dtype=torch.float32, requires_grad=True).unsqueeze(0)
+        
+        
+        attacker = 0
+        defender = 1
+        print('\n')
+        print('=================')
 
-        _, reward_attacker, reward_defender, attack_cards, defense_cards, game_log, done = game_turns(
-            game, state_attacker, state_defender, deck, episode, game_log, attacker_net, defender_net, game_data = game_data
-        )
+        _, reward_attacker, reward_defender, attack_cards, defense_cards, game_log, done = game_turns( game, 
+                                                                                                      attacker,
+                                                                                                      defender,
+                                                                                                      state_attacker,
+                                                                                                      state_defender,
+                                                                                                      deck,
+                                                                                                      episode, 
+                                                                                                      game_log,
+                                                                                                      attacker_net,
+                                                                                                      defender_net,
+                                                                                                      game_data = game_data
+                                                                                                      )
 
 
         # Ensure attacker_action and defender_action have consistent sizes
@@ -63,8 +78,8 @@ def train_networks():
         print(f"Episode: {episode + 1}, Reward Attacker: {reward_attacker}, Reward Defender: {reward_defender}")
 
     # Visualize the last 3 games
-    #print("game_data =", game_data)
-   # visualize_games(game_log)
+   # print("game_data =", game_data)
+    visualize_games(game_log)
 
     return game_data #game_log
 
