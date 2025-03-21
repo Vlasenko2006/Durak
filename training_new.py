@@ -11,6 +11,7 @@ gamma = 0.99
 batch_size = 64
 num_episodes = 3
 num_games_to_visualize = 3
+reward_value = 1
 
 # Unicode characters for card suits
 suit_symbols = {
@@ -55,7 +56,7 @@ def train_networks():
         played_cards = torch.zeros(1,36)
         taken_cards = torch.zeros(2,36)
 
-        played_cards, reward_attacker, reward_defender, attack_cards, defense_cards, game_log, done = game_turns( game, 
+        played_cards, reward_attacker, reward_defender, output_defender, output_attacker, game_log, done = game_turns( game, 
                                                                                                       attacker,
                                                                                                       defender,
                                                                                                       attack_flag,
@@ -69,20 +70,24 @@ def train_networks():
                                                                                                       game_log,
                                                                                                       attacker_net,
                                                                                                       defender_net,
+                                                                                                      reward_value,
                                                                                                       game_data = game_data
                                                                                                       )
 
 
         # Ensure attacker_action and defender_action have consistent sizes
-        target_attacker = torch.full_like(attacker_net(state_attacker), reward_attacker, dtype=torch.float32)
-        target_defender = torch.full_like(defender_net(state_defender), reward_defender, dtype=torch.float32)
+
+        target_attacker = torch.full_like(output_attacker, reward_attacker, dtype=torch.float32)
+        target_defender = torch.full_like(output_defender, reward_defender, dtype=torch.float32)
 
         # Update networks with rewards
         attacker_optimizer.zero_grad()
         defender_optimizer.zero_grad()
 
-        loss_attacker = F.mse_loss(attacker_net(state_attacker), target_attacker)
-        loss_defender = F.mse_loss(defender_net(state_defender), target_defender)
+        what is loss attacker and loss defender?
+
+   #     loss_attacker = F.mse_loss(attacker_net(state_attacker), target_attacker)
+   #     loss_defender = F.mse_loss(defender_net(state_defender), target_defender)
 
         loss_attacker.backward(retain_graph=True)
         loss_defender.backward()

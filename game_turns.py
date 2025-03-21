@@ -62,6 +62,7 @@ def game_turns( game,
               game_log,
               attacker_net,
               defender_net,
+              reward_value,
               game_data = []
               ):
 
@@ -105,7 +106,7 @@ def game_turns( game,
         print(not_playing_cards.shape)
         print(cards_on_a_table.shape)
         
-        output_attacker = attacker_net(state_attacker, attack_flag, not_playing_cards,cards_on_a_table)
+        output_attacker = attacker_net(state_attacker, attack_flag, played_cards,cards_on_a_table)
         attacker_action_probs = output_attacker[...,:-1]
         print("attacker_action_probs.shape = ",attacker_action_probs.shape)
         print("output_attacker.shape = ",output_attacker.shape)
@@ -138,7 +139,7 @@ def game_turns( game,
             # Defender's turn
 
             print(f"Episode {episode + 1}: Defender's turn.")
-            output_defender= defender_net(state_defender,defend_flag,not_playing_cards, cards_on_a_table)
+            output_defender= defender_net(state_defender,defend_flag,played_cards, cards_on_a_table)
             defender_action_probs = output_defender[...,:-1]
             decision_to_defend = output_defender[...,-1]
             masked_defender_action_probs, _ = mask_invalid_cards(defender_action_probs, game.players[defender], deck)
@@ -147,7 +148,7 @@ def game_turns( game,
             
             cards_on_a_table = game.updage_state(defender, defender_card_index, cards_on_a_table)
             
-            decision_to_defend = 1  # For debugging only
+           # decision_to_defend = 1  # For debugging only
             reward = defender_can_beat(game.players[defender], chosen_card, chosen_defender_card, game.can_beat, decision_to_defend)
             if reward == -100:
                 reward_defender = reward
@@ -238,7 +239,7 @@ def game_turns( game,
                 break
 
             # Attacker decides whether to continue attack
-            continue_attack = decision_to_continue_attack > 0.0   # Randomly decide to continue or stop
+            continue_attack = decision_to_continue_attack > 0.5   # Randomly decide to continue or stop
             if not continue_attack:
                 played_cards =  not_playing_cards
                 done = True
@@ -248,4 +249,4 @@ def game_turns( game,
 
 
 
-    return played_cards, reward_attacker, reward_defender, attack_cards, defense_cards, game_log, done
+    return played_cards, reward_attacker, reward_defender, output_defender, output_attacker, game_log, done
