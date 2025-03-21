@@ -130,7 +130,7 @@ def game_turns( game,
             game.players[attacker].remove(chosen_card)
             state_defender = torch.tensor(game.get_state(1), dtype=torch.float32, requires_grad=True).unsqueeze(0)
             print("Chosen_attacker's_card = ",chosen_card)
-            cards_on_a_table = game.updage_state(attacker_card_index, cards_on_a_table)
+            cards_on_a_table = game.updage_state(attacker, attacker_card_index, cards_on_a_table)
 
             if attack_value is None:
                 attack_value = chosen_card[0]
@@ -145,7 +145,7 @@ def game_turns( game,
             defender_card_index = torch.argmax(masked_defender_action_probs).item()
             chosen_defender_card = game.index_to_card(defender_card_index)
             
-            cards_on_a_table = game.updage_state(defender_card_index, cards_on_a_table)
+            cards_on_a_table = game.updage_state(defender, defender_card_index, cards_on_a_table)
             
             decision_to_defend = 1  # For debugging only
             reward = defender_can_beat(game.players[defender], chosen_card, chosen_defender_card, game.can_beat, decision_to_defend)
