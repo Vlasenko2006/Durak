@@ -1,10 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-"""
-Created on Wed Mar 19 12:26:35 2025
-
-@author: andrey
-"""
 
 import random
 
@@ -31,6 +25,18 @@ class DurakGame:
     def draw_card(self, player_index):
         if self.deck:
             self.players[player_index].append(self.deck.pop())
+        else:
+            print(f"No more cards left in the deck to draw for player {player_index + 1}.")
+
+    def refill_hands(self, attacker,defender):
+        deck_status = 1
+        for player_index in [attacker,defender]:
+            while len(self.players[player_index]) < 6 and self.deck:
+                self.draw_card(player_index)
+            if not self.deck:
+                print(f"Player {player_index + 1} has {len(self.players[player_index])} cards. Deck is empty, no more cards to draw.")
+                deck_status = 0
+        return deck_status
 
     def get_state(self, player_index):
         state = [0] * 36  # Initialize state with zeros
@@ -39,11 +45,9 @@ class DurakGame:
             state[index] = 1
         return state
     
-    def updage_state(self, gamer_id, card_index, state):
-        print("indexes = ", card_index)
-        print("state = ", state)
+    def update_state(self, gamer_id, card_index, state):
         for card in self.players[gamer_id]:
-            state[0,card_index] = 1
+            state[0, card_index] = 1
         return state
 
     def card_to_index(self, card):

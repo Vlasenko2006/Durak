@@ -5,6 +5,7 @@ from neural_networks import attacker_net, defender_net, attacker_optimizer, defe
 import matplotlib.pyplot as plt
 from game_turns import game_turns
 from visualize_games import visualize_games
+import numpy as np
 
 # Hyperparameters
 gamma = 0.99
@@ -39,7 +40,7 @@ def train_networks():
     for episode in range(num_episodes):
         game = DurakGame()
         
-        
+        # attacker_ID
         state_attacker = torch.tensor(game.get_state(0), dtype=torch.float32, requires_grad=True).unsqueeze(0)
         state_defender = torch.tensor(game.get_state(1) , dtype=torch.float32, requires_grad=True).unsqueeze(0)
         
@@ -56,44 +57,69 @@ def train_networks():
         played_cards = torch.zeros(1,36)
         taken_cards = torch.zeros(2,36)
 
-        played_cards, reward_attacker, reward_defender, output_defender, output_attacker, game_log, done = game_turns( game, 
-                                                                                                      attacker,
-                                                                                                      defender,
-                                                                                                      attack_flag,
-                                                                                                      defend_flag,
-                                                                                                      played_cards,
-                                                                                                      taken_cards,
-                                                                                                      state_attacker,
-                                                                                                      state_defender,
-                                                                                                      deck,
-                                                                                                      episode, 
-                                                                                                      game_log,
-                                                                                                      attacker_net,
-                                                                                                      defender_net,
-                                                                                                      reward_value,
-                                                                                                      game_data = game_data
-                                                                                                      )
+####################  One turn game
+##################### Need a loop over this turn, :: while deck_status >0 and (game.players[attacker] and game.players[attacker])
+
+        big_loop_done = False
+        counter = 1
+        while not big_loop_done:
+            
+            played_cards, reward_attacker, reward_defender, output_defender, output_attacker, game_log, done = game_turns( game, 
+                                                                                                          attacker,
+                                                                                                          defender,
+                                                                                                          attack_flag,
+                                                                                                          defend_flag,
+                                                                                                          played_cards,
+                                                                                                          taken_cards,
+                                                                                                          state_attacker,
+                                                                                                          state_defender,
+                                                                                                          deck,
+                                                                                                          episode, 
+                                                                                                          game_log,
+                                                                                                          attacker_net,
+                                                                                                          defender_net,
+                                                                                                          reward_value,
+                                                                                                          game_data = game_data
+                                                                                                          )
+            
+            deck_status = game.refill_hands(attacker,defender)
+            if deck_status == 0:
+                if not game.players[attacker]:
+                    reward_attacker = reward_attacker + 3 * reward_value
+                    big_loop_done = True
+                if not game.players[attacker]:
+                    reward_defender = reward_defender + 3 * reward_value
+                    big_loop_done = True
+                    
+            
+            if np.mod(counter,2) == 0:
+                attacker = 1
+                defender = 0
+            else:
+                attacker = 0
+                defender = 1
+            
 
 
         # Ensure attacker_action and defender_action have consistent sizes
 
-        target_attacker = torch.full_like(output_attacker, reward_attacker, dtype=torch.float32)
-        target_defender = torch.full_like(output_defender, reward_defender, dtype=torch.float32)
+   #      target_attacker = torch.full_like(output_attacker, reward_attacker, dtype=torch.float32)
+   #      target_defender = torch.full_like(output_defender, reward_defender, dtype=torch.float32)
 
-        # Update networks with rewards
-        attacker_optimizer.zero_grad()
-        defender_optimizer.zero_grad()
+   #      # Update networks with rewards
+   #      attacker_optimizer.zero_grad()
+   #      defender_optimizer.zero_grad()
 
-        what is loss attacker and loss defender?
+   #    #  what is loss attacker and loss defender?
 
-   #     loss_attacker = F.mse_loss(attacker_net(state_attacker), target_attacker)
-   #     loss_defender = F.mse_loss(defender_net(state_defender), target_defender)
+   # #     loss_attacker = F.mse_loss(attacker_net(state_attacker), target_attacker)
+   # #     loss_defender = F.mse_loss(defender_net(state_defender), target_defender)
 
-        loss_attacker.backward(retain_graph=True)
-        loss_defender.backward()
+   #      loss_attacker.backward(retain_graph=True)
+   #      loss_defender.backward()
 
-        attacker_optimizer.step()
-        defender_optimizer.step()
+   #      attacker_optimizer.step()
+   #      defender_optimizer.step()
 
         print(f"Episode: {episode + 1}, Reward Attacker: {reward_attacker}, Reward Defender: {reward_defender}")
 
