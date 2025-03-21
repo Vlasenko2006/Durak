@@ -24,6 +24,8 @@ suit_symbols = {
 game_data = []
 game_log = []  # Variable to hold all game steps
 
+attack_flag = torch.tensor([1], dtype=torch.float32, requires_grad=True).unsqueeze(0)
+defend_flag = -1 * torch.tensor([1], dtype=torch.float32, requires_grad=True).unsqueeze(0)
 
 
 def train_networks():
@@ -35,18 +37,31 @@ def train_networks():
 
     for episode in range(num_episodes):
         game = DurakGame()
+        
+        
         state_attacker = torch.tensor(game.get_state(0), dtype=torch.float32, requires_grad=True).unsqueeze(0)
-        state_defender = torch.tensor(game.get_state(1), dtype=torch.float32, requires_grad=True).unsqueeze(0)
+        state_defender = torch.tensor(game.get_state(1) , dtype=torch.float32, requires_grad=True).unsqueeze(0)
         
         
+        print(state_attacker.shape)
+        
+
+
         attacker = 0
         defender = 1
         print('\n')
         print('=================')
+        
+        played_cards = torch.zeros(1,36)
+        taken_cards = torch.zeros(2,36)
 
-        _, reward_attacker, reward_defender, attack_cards, defense_cards, game_log, done = game_turns( game, 
+        played_cards, reward_attacker, reward_defender, attack_cards, defense_cards, game_log, done = game_turns( game, 
                                                                                                       attacker,
                                                                                                       defender,
+                                                                                                      attack_flag,
+                                                                                                      defend_flag,
+                                                                                                      played_cards,
+                                                                                                      taken_cards,
                                                                                                       state_attacker,
                                                                                                       state_defender,
                                                                                                       deck,

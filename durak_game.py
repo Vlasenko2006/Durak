@@ -38,6 +38,13 @@ class DurakGame:
             index = self.card_to_index(card)
             state[index] = 1
         return state
+    
+    def updage_state(self, player_index, state):
+        print("indexes = ", player_index, state)
+        for card in self.players[player_index]:
+            index = self.card_to_index(card)
+            state[index] = 1
+        return state
 
     def card_to_index(self, card):
         value, suit = card
