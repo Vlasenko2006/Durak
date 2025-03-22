@@ -12,7 +12,7 @@ gamma = 0.99
 batch_size = 64
 num_episodes = 3
 num_games_to_visualize = 3
-reward_value = 1
+reward_value = torch.tensor([1.], dtype=torch.float32, requires_grad=True)
 
 # Unicode characters for card suits
 suit_symbols = {
@@ -26,8 +26,8 @@ suit_symbols = {
 game_data = []
 game_log = []  # Variable to hold all game steps
 
-attack_flag = torch.tensor([1], dtype=torch.float32, requires_grad=True).unsqueeze(0)
-defend_flag = -1 * torch.tensor([1], dtype=torch.float32, requires_grad=True).unsqueeze(0)
+attack_flag = torch.tensor([1.], dtype=torch.float32, requires_grad=True).unsqueeze(0)
+defend_flag = -1 * torch.tensor([1.], dtype=torch.float32, requires_grad=True).unsqueeze(0)
 
 
 def train_networks():
@@ -56,6 +56,7 @@ def train_networks():
         
         played_cards = torch.zeros(1,36)
         taken_cards = torch.zeros(2,36)
+        Q_attacker_previous = Q_defender_previous = torch.tensor([1.], dtype=torch.float32, requires_grad=True)
 
 ####################  One turn game
 ##################### Need a loop over this turn, :: while deck_status >0 and (game.players[attacker] and game.players[attacker])
@@ -91,6 +92,7 @@ def train_networks():
                     reward_defender = reward_defender + 3 * reward_value
                     big_loop_done = True
                     
+            if any(log_entry['result'] == "Wrong card chosen" for log_entry in game_log): big_loop_done = True
             
             if np.mod(counter,2) == 0:
                 attacker = 1
@@ -99,27 +101,47 @@ def train_networks():
                 attacker = 0
                 defender = 1
             
+            
+            
+            if reward_attacker != 0: reward_attacker = reward_attacker/reward_attacker
+            if reward_defender != 0: reward_defender = reward_defender/reward_defender
+            
+            
+            print("reward_attacker.dtype = ", reward_attacker.dtype)
+            print("reward_defender.dtype = ", reward_defender.dtype)
 
+            # Calculate target Q-values using Bellman's equation
+            if counter == 1:
+                target_attacker = gamma * reward_attacker
+                target_defender = gamma * reward_defender            
+            else:
+                target_attacker = Q_attacker_previous + gamma * reward_attacker
+                target_defender = Q_defender_previous + gamma * reward_defender
+            
+            print("target_attacker.dtype = ", target_attacker.dtype)
+            print("target_defender.dtype = ", target_defender.dtype)
+            print("Q_attacker_previous.dtype = ", Q_attacker_previous.dtype)
+            print("Q_defender_previous.dtype = ", Q_defender_previous.dtype)
+            
+            # Calculate loss
+            loss_attacker = F.mse_loss(target_attacker, Q_attacker_previous)
+            loss_defender = F.mse_loss(target_defender, Q_defender_previous)
+            
+            # Update networks with rewards
+            attacker_optimizer.zero_grad()
+            defender_optimizer.zero_grad()
 
-        # Ensure attacker_action and defender_action have consistent sizes
+            loss_attacker.backward(retain_graph=True)
+            loss_defender.backward()
 
-   #      target_attacker = torch.full_like(output_attacker, reward_attacker, dtype=torch.float32)
-   #      target_defender = torch.full_like(output_defender, reward_defender, dtype=torch.float32)
+            attacker_optimizer.step()
+            defender_optimizer.step()
 
-   #      # Update networks with rewards
-   #      attacker_optimizer.zero_grad()
-   #      defender_optimizer.zero_grad()
-
-   #    #  what is loss attacker and loss defender?
-
-   # #     loss_attacker = F.mse_loss(attacker_net(state_attacker), target_attacker)
-   # #     loss_defender = F.mse_loss(defender_net(state_defender), target_defender)
-
-   #      loss_attacker.backward(retain_graph=True)
-   #      loss_defender.backward()
-
-   #      attacker_optimizer.step()
-   #      defender_optimizer.step()
+            print(f"Episode: {episode + 1}, Reward Attacker: {reward_attacker}, Reward Defender: {reward_defender}")
+            
+            # Update states
+            Q_attacker_previous = reward_attacker
+            Q_attacker_previous = reward_defender
 
         print(f"Episode: {episode + 1}, Reward Attacker: {reward_attacker}, Reward Defender: {reward_defender}")
 

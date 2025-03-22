@@ -59,8 +59,8 @@ def game_turns(game,
         game_data = []
 
     attack_value = None
-    reward_attacker = 0
-    reward_defender = 0
+    reward_attacker = torch.tensor([0.], dtype=torch.float32, requires_grad=True)
+    reward_defender = torch.tensor([0.], dtype=torch.float32, requires_grad=True)
     done = False
 
     # Store the cards for visualization
@@ -100,8 +100,8 @@ def game_turns(game,
 
         if chosen_card not in game.players[attacker]:
             # Invalid move, attacker loses
-            reward_attacker = -100
-            reward_defender = 100
+            reward_attacker = 0
+            reward_defender = 0
             done = True
             defender_action_probs = torch.zeros_like(attacker_action_probs, requires_grad=True)
             if verbose: print(f"Episode {episode + 1}: Invalid move by attacker.")
@@ -135,7 +135,7 @@ def game_turns(game,
                                        )
             if defence_decision == "failure":
                 print("Defence Failure")
-                reward_defender = 0
+                reward_defender = 0 * reward_defender
                 game_log.append({
                     'episode': episode + 1,
                     'step': step_number,
@@ -149,7 +149,7 @@ def game_turns(game,
                 done = True
                 break
             elif defence_decision == "withdraw":
-                reward_defender = 0
+                reward_defender = 0 * reward_defender
                 game_log.append({
                     'episode': episode + 1,
                     'step': step_number,
@@ -196,18 +196,18 @@ def game_turns(game,
                 if not game.players[attacker]:
                     reward_attacker = reward_attacker + reward_value
                     done = True
-                    winner = "Attacker wins 3"
+                    winner = "Attacker wins, no cards remaining"
                     played_cards = not_playing_cards
                 elif not game.players[defender]:
                     reward_defender = reward_defender + reward_value
                     done = True
-                    winner = "Defender wins"
+                    winner = "Defender wins, no cards remaining"
                     played_cards = not_playing_cards
                 elif not game.players[defender] and not game.players[attacker]:
                     reward_attacker = reward_attacker + reward_value
                     reward_defender = reward_defender + reward_value
                     done = True
-                    winner = "No winner"
+                    winner = "No winner, no cards remaining"
                     played_cards = not_playing_cards
                 else:
                     winner = "Defender wins"
