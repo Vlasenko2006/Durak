@@ -23,12 +23,12 @@ def mask_invalid_cards(action_probs, valid_cards, deck):
     return masked_probs, mask
 
 
-def defender_can_beat(defenders_cards, attack_card, chosen_defender_card, can_beat, decision_to_defend):
+def defender_can_beat(defenders_cards, attack_card, chosen_defender_card, can_beat, decision_to_defend, verbose = False):
     if decision_to_defend > 0.:
         defence_decision = "decide_to_defend"
         for defend_card in defenders_cards:
             if can_beat(attack_card, defend_card) and not can_beat(attack_card, chosen_defender_card):
-                print('Defender can beat, but chosen wrong card')
+                if verbose: print('Defender can beat, but chosen wrong card')
                 defence_decision = "failure"
                 break
     else:
@@ -83,7 +83,7 @@ def game_turns(game,
 
         if not valid_attacker_cards:
             done = True
-            print(f"Episode {episode + 1}: No valid cards to attack.")
+            if verbose: print(f"Episode {episode + 1}: No valid cards to attack.")
             break
 
         not_playing_cards = not_playing_cards + cards_on_a_table
@@ -134,7 +134,7 @@ def game_turns(game,
                                        decision_to_defend
                                        )
             if defence_decision == "failure":
-                print("Defence Failure")
+                if verbose: print("Defence Failure")
                 reward_defender = 0 * reward_defender
                 game_log.append({
                     'episode': episode + 1,
@@ -214,7 +214,7 @@ def game_turns(game,
                     reward_defender = reward_defender + reward_value
 
 
-            print(f"Episode {episode + 1}:" + winner)
+            if verbose: print(f"Episode {episode + 1}:" + winner)
             game_log.append({
                 'episode': episode + 1,
                 'step': step_number,

@@ -62,6 +62,14 @@ def train_networks():
 ##################### Need a loop over this turn, :: while deck_status >0 and (game.players[attacker] and game.players[attacker])
 
         big_loop_done = False
+        loss_defender = torch.tensor([0.], dtype=torch.float32, requires_grad=True)
+        loss_attacker = torch.tensor([0.], dtype=torch.float32, requires_grad=True)
+        
+        if loss_attacker.grad != None:
+            loss_attacker.grad.zero()
+            print("Zeroing Grad")
+        if loss_defender.grad != None:
+            loss_defender.grad.zero()
         counter = 1
         while not big_loop_done:
             
@@ -107,8 +115,8 @@ def train_networks():
             if reward_defender != 0: reward_defender = reward_defender/reward_defender
             
             
-            print("reward_attacker.dtype = ", reward_attacker.dtype)
-            print("reward_defender.dtype = ", reward_defender.dtype)
+            # print("reward_attacker.dtype = ", reward_attacker.dtype)
+            # print("reward_defender.dtype = ", reward_defender.dtype)
 
             # Calculate target Q-values using Bellman's equation
             if counter == 1:
@@ -118,32 +126,32 @@ def train_networks():
                 target_attacker = Q_attacker_previous + gamma * reward_attacker
                 target_defender = Q_defender_previous + gamma * reward_defender
             
-            print("target_attacker.dtype = ", target_attacker.dtype)
-            print("target_defender.dtype = ", target_defender.dtype)
-            print("Q_attacker_previous.dtype = ", Q_attacker_previous.dtype)
-            print("Q_defender_previous.dtype = ", Q_defender_previous.dtype)
-            
-            # Calculate loss
-            loss_attacker = F.mse_loss(target_attacker, Q_attacker_previous)
-            loss_defender = F.mse_loss(target_defender, Q_defender_previous)
-            
-            # Update networks with rewards
-            attacker_optimizer.zero_grad()
-            defender_optimizer.zero_grad()
-
-            loss_attacker.backward(retain_graph=True)
-            loss_defender.backward()
-
-            attacker_optimizer.step()
-            defender_optimizer.step()
-
+            # print("target_attacker.dtype = ", target_attacker.dtype)
+            # print("target_defender.dtype = ", target_defender.dtype)
+            # print("Q_attacker_previous.dtype = ", Q_attacker_previous.dtype)
+            # print("Q_defender_previous.dtype = ", Q_defender_previous.dtype)
             print(f"Episode: {episode + 1}, Reward Attacker: {reward_attacker}, Reward Defender: {reward_defender}")
             
             # Update states
             Q_attacker_previous = reward_attacker
             Q_attacker_previous = reward_defender
+            
+            # Calculate loss
+            loss_attacker = loss_attacker + F.mse_loss(target_attacker, Q_attacker_previous)
+            loss_defender = loss_defender + F.mse_loss(target_defender, Q_defender_previous)
+            
+            # Update networks with rewards
+        attacker_optimizer.zero_grad()
+        defender_optimizer.zero_grad()
 
-        print(f"Episode: {episode + 1}, Reward Attacker: {reward_attacker}, Reward Defender: {reward_defender}")
+        loss_attacker.backward(retain_graph=True)
+        loss_defender.backward(retain_graph=True)
+
+        attacker_optimizer.step()
+        defender_optimizer.step()
+
+
+        #print(f"Episode: {episode + 1}, Reward Attacker: {reward_attacker}, Reward Defender: {reward_defender}")
 
     # Visualize the last 3 games
    # print("game_data =", game_data)
