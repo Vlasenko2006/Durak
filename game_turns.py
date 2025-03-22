@@ -51,12 +51,8 @@ def game_turns(game,
                attacker_net,
                defender_net, 
                reward_value,
-               game_data = None,
                verbose = False
                ):
-    
-    if game_data is None:
-        game_data = []
 
     attack_value = None
     reward_attacker = torch.tensor([0.], dtype=torch.float32, requires_grad=True)
