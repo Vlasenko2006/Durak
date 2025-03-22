@@ -70,6 +70,10 @@ def train_networks():
             print("Zeroing Grad")
         if loss_defender.grad != None:
             loss_defender.grad.zero()
+            
+        attacker_optimizer.zero_grad()
+        defender_optimizer.zero_grad()
+            
         counter = 1
         while not big_loop_done:
             
@@ -141,8 +145,6 @@ def train_networks():
             loss_defender = loss_defender + F.mse_loss(target_defender, Q_defender_previous)
             
             # Update networks with rewards
-        attacker_optimizer.zero_grad()
-        defender_optimizer.zero_grad()
 
         loss_attacker.backward(retain_graph=True)
         loss_defender.backward(retain_graph=True)
