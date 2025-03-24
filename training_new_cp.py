@@ -7,7 +7,7 @@ from neural_networks import attacker_optimizer, defender_optimizer
 # Hyperparameters
 gamma = 0.99
 batch_size = 64
-num_episodes = 300
+num_episodes = 3
 num_games_to_visualize = 3
 reward_value = torch.tensor([1.], dtype=torch.float32, requires_grad=True)
 
@@ -43,10 +43,8 @@ def train_networks():
         
         for batch in range(batch_size):
             game = DurakGame()
-            if 'game_log' in locals(): 
-                print("Exists")
-                del game_log4
-           # print("batch_iter = ", batch)
+            
+            print("batch_iter = ", batch)
         
             loss_attacker_loc, loss_defender_loc, game_log = gameset(game,
                         attack_flag,
@@ -73,7 +71,7 @@ def train_networks():
 
 
     # Visualize the last 3 games
-    #visualize_games(game_log)
+    visualize_games(game_log)
 
     return game_data
 

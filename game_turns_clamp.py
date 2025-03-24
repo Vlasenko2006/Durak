@@ -50,8 +50,8 @@ def game_turns(game,
     reward_defender = torch.tensor([0.], dtype=torch.float32, requires_grad=True)
     done = False
 
-    cards_on_a_table = torch.zeros(1, 36, dtype=torch.float32)  # Convert to Float
-    not_playing_cards = played_cards.clone().float()  # Convert to Float to avoid type mismatch
+    cards_on_a_table = torch.zeros(1, 36)
+    not_playing_cards = played_cards
 
     defender_action_probs = None  # Initialize defender_action_probs
     step_number = 0  # Initialize step number
@@ -69,10 +69,25 @@ def game_turns(game,
             if verbose: print(f"Episode {episode + 1}: No valid cards to attack.")
             break
 
+        # Check non-playing cards before updating
+        for card in cards_on_a_table[0, :]:
+            assert card == 1. or card == 0., print("Wrong non-playing cards! -1 Card = " + str(card))
+        for card in played_cards[0, :]:
+            assert card == 1. or card == 0., print("Wrong non-playing cards! 0 Card = " + str(card))
+        for card in not_playing_cards[0, :]:
+            assert card == 1. or card == 0., print("Wrong non-playing cards 1 ! Card = " + str(card))
+
         # Debugging statement to check values
-        # print(f"Before updating not_playing_cards: {not_playing_cards}")
-        # print(f"Cards on table before attacker: {cards_on_a_table}")
-        # print(f"Attacker's hand before play: {game.players[attacker]}")
+        print(f"Before updating not_playing_cards: {not_playing_cards}")
+
+        # Ensure no duplicate cards are added
+        not_playing_cards = torch.clamp(not_playing_cards + cards_on_a_table, 0, 1)
+
+        # Debugging statement to check values
+        print(f"After updating not_playing_cards: {not_playing_cards}")
+
+        for card in not_playing_cards[0, :]:
+            assert card == 1. or card == 0., print("Wrong non-playing cards 2 ! Card = " + str(card))
 
         output_attacker = attacker_net(state_attacker, attack_flag, played_cards, cards_on_a_table)
         attacker_action_probs = output_attacker[..., :-1]
@@ -99,10 +114,6 @@ def game_turns(game,
             if attack_value is None:
                 attack_value = chosen_card[0]
 
-            # print(f"Attacker played card: {chosen_card}")
-            # print(f"Attacker's hand after play: {game.players[attacker]}")
-            # print(f"Cards on table after attacker: {cards_on_a_table}")
-
             # Defender's turn
             if verbose: print(f"Episode {episode + 1}: Defender's turn.")
             output_defender = defender_net(state_defender, defend_flag, played_cards, cards_on_a_table)
@@ -111,7 +122,6 @@ def game_turns(game,
             masked_defender_action_probs, _ = mask_invalid_cards(defender_action_probs, game.players[defender], deck)
             defender_card_index = torch.argmax(masked_defender_action_probs).item()
             chosen_defender_card = game.index_to_card(defender_card_index)
-            game.players[defender].remove(chosen_defender_card)
 
             cards_on_a_table = game.update_state(defender, defender_card_index, cards_on_a_table)
 
@@ -122,7 +132,7 @@ def game_turns(game,
                                                  decision_to_defend)
             if defence_decision == "failure":
                 if verbose: print("Defence Failure")
-                reward_defender = -1 * reward_defender
+                reward_defender = 0 * reward_defender
                 game_log.append({
                     'episode': episode + 1,
                     'step': step_number,
@@ -134,7 +144,6 @@ def game_turns(game,
                     'result': "Wrong card chosen"
                 })
                 done = True
-                
                 break
             elif defence_decision == "withdraw":
                 reward_defender = 0 * reward_defender
@@ -159,30 +168,26 @@ def game_turns(game,
                 chosen_defender_card = None
                 if verbose: print("Attacker wins from the first turn")
             else:
-               # game.players[defender].remove(chosen_defender_card)
+                game.players[defender].remove(chosen_defender_card)
                 state_attacker = torch.tensor(game.get_state(0), dtype=torch.float32, requires_grad=True).unsqueeze(0)
-
-                print(f"Defender played card: {chosen_defender_card}")
-                print(f"Defender's hand after play: {game.players[defender]}")
-                print(f"Cards on table after defender: {cards_on_a_table}")
 
                 # No more cards in hand remaining, defender / attacker wins
                 if not game.players[attacker]:
                     reward_attacker = reward_attacker + reward_value
                     done = True
                     winner = "Attacker wins, no cards remaining"
-                    played_cards = not_playing_cards.clone()
+                    played_cards = torch.clamp(not_playing_cards, 0, 1)
                 elif not game.players[defender]:
                     reward_defender = reward_defender + reward_value
                     done = True
                     winner = "Defender wins, no cards remaining"
-                    played_cards = not_playing_cards.clone()
+                    played_cards = torch.clamp(not_playing_cards, 0, 1)
                 elif not game.players[defender] and not game.players[attacker]:
                     reward_attacker = reward_attacker + reward_value
                     reward_defender = reward_defender + reward_value
                     done = True
                     winner = "No winner, no cards remaining"
-                    played_cards = not_playing_cards.clone()
+                    played_cards = torch.clamp(not_playing_cards, 0, 1)
                 else:
                     winner = "Defender wins"
                     reward_defender = reward_defender + reward_value
@@ -208,14 +213,11 @@ def game_turns(game,
             # Attacker decides whether to continue attack
             continue_attack = decision_to_continue_attack > 0.  # Randomly decide to continue or stop
             if not continue_attack:
-                played_cards = not_playing_cards.clone()
+                played_cards = torch.clamp(not_playing_cards, 0, 1)
                 done = True
                 if verbose: print(f"Episode {episode + 1}: Attacker decides to stop the attack.")
                 break
             if winner == "Defender wins": reward_defender = reward_defender + reward_value
             if winner == "Attacker wins": reward_attacker = reward_attacker + reward_value
-
-        # Update not_playing_cards to include cards on the table without duplication
-        not_playing_cards = torch.logical_or(not_playing_cards, cards_on_a_table)
 
     return played_cards, reward_attacker, reward_defender, output_defender, output_attacker, game_log, done

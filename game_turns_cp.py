@@ -70,9 +70,9 @@ def game_turns(game,
             break
 
         # Debugging statement to check values
-        # print(f"Before updating not_playing_cards: {not_playing_cards}")
-        # print(f"Cards on table before attacker: {cards_on_a_table}")
-        # print(f"Attacker's hand before play: {game.players[attacker]}")
+        print(f"Before updating not_playing_cards: {not_playing_cards}")
+        print(f"Cards on table before attacker: {cards_on_a_table}")
+        print(f"Attacker's hand before play: {game.players[attacker]}")
 
         output_attacker = attacker_net(state_attacker, attack_flag, played_cards, cards_on_a_table)
         attacker_action_probs = output_attacker[..., :-1]
@@ -99,9 +99,9 @@ def game_turns(game,
             if attack_value is None:
                 attack_value = chosen_card[0]
 
-            # print(f"Attacker played card: {chosen_card}")
-            # print(f"Attacker's hand after play: {game.players[attacker]}")
-            # print(f"Cards on table after attacker: {cards_on_a_table}")
+            print(f"Attacker played card: {chosen_card}")
+            print(f"Attacker's hand after play: {game.players[attacker]}")
+            print(f"Cards on table after attacker: {cards_on_a_table}")
 
             # Defender's turn
             if verbose: print(f"Episode {episode + 1}: Defender's turn.")
@@ -111,7 +111,6 @@ def game_turns(game,
             masked_defender_action_probs, _ = mask_invalid_cards(defender_action_probs, game.players[defender], deck)
             defender_card_index = torch.argmax(masked_defender_action_probs).item()
             chosen_defender_card = game.index_to_card(defender_card_index)
-            game.players[defender].remove(chosen_defender_card)
 
             cards_on_a_table = game.update_state(defender, defender_card_index, cards_on_a_table)
 
@@ -122,7 +121,7 @@ def game_turns(game,
                                                  decision_to_defend)
             if defence_decision == "failure":
                 if verbose: print("Defence Failure")
-                reward_defender = -1 * reward_defender
+                reward_defender = 0 * reward_defender
                 game_log.append({
                     'episode': episode + 1,
                     'step': step_number,
@@ -134,7 +133,6 @@ def game_turns(game,
                     'result': "Wrong card chosen"
                 })
                 done = True
-                
                 break
             elif defence_decision == "withdraw":
                 reward_defender = 0 * reward_defender
@@ -159,7 +157,7 @@ def game_turns(game,
                 chosen_defender_card = None
                 if verbose: print("Attacker wins from the first turn")
             else:
-               # game.players[defender].remove(chosen_defender_card)
+                game.players[defender].remove(chosen_defender_card)
                 state_attacker = torch.tensor(game.get_state(0), dtype=torch.float32, requires_grad=True).unsqueeze(0)
 
                 print(f"Defender played card: {chosen_defender_card}")

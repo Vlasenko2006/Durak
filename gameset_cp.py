@@ -24,7 +24,7 @@ def gameset(game,
             ):
     
     game.create_deck()
-    #game.deal_cards()
+    game.deal_cards()
     
     
     # attacker_ID
@@ -73,16 +73,16 @@ def gameset(game,
                                                                                                       defender_net,
                                                                                                       reward_value
                                                                                                       )
-        # deck_status = game.refill_hands(attacker,defender)
-        # if deck_status == 0:
-        #     if not game.players[attacker]:
-        #        # reward_attacker = reward_attacker + 3 * reward_value  # FIXME!
-        #         print("Loop is done")
-        #         big_loop_done = True
-        #     if not game.players[defender]:
-        #         print("Loop is done")
-        #        # reward_defender = reward_defender + 3 * reward_value
-        #         big_loop_done = True
+        deck_status = game.refill_hands(attacker,defender)
+        if deck_status == 0:
+            if not game.players[attacker]:
+               # reward_attacker = reward_attacker + 3 * reward_value  # FIXME!
+                print("Loop is done")
+                big_loop_done = True
+            if not game.players[defender]:
+                print("Loop is done")
+               # reward_defender = reward_defender + 3 * reward_value
+                big_loop_done = True
                 
         if any(log_entry['result'] == "Wrong card chosen" for log_entry in game_log): big_loop_done = True
         
@@ -97,7 +97,7 @@ def gameset(game,
         #print("big_loop_done = ", big_loop_done, 'counter = ', counter) 
         if reward_attacker != 0: reward_attacker = reward_attacker/reward_attacker
         if reward_defender != 0: reward_defender = reward_defender/reward_defender
-        big_loop_done = True
+        
         
         # print("reward_attacker.dtype = ", reward_attacker.dtype)
         # print("reward_defender.dtype = ", reward_defender.dtype)
