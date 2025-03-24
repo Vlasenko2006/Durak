@@ -11,7 +11,52 @@ from neural_networks import attacker_net, defender_net, attacker_optimizer, defe
 from game_turns import game_turns
 import numpy as np
 
-#### Must reset cards for ech player 
+#### Must reset cards for ech player
+
+
+
+
+
+
+deck = [('8', 'clubs'),
+ ('7', 'spades'),
+ ('J', 'clubs'),
+ ('A', 'spades'),
+ ('J', 'hearts'),
+ ('Q', 'clubs'),
+ ('7', 'clubs'),
+ ('9', 'diamonds'),
+ ('9', 'clubs'),
+ ('10', 'clubs'),
+ ('J', 'spades'),
+ ('K', 'clubs'),
+ ('10', 'hearts'),
+ ('K', 'diamonds'),
+ ('8', 'diamonds'),
+ ('Q', 'diamonds'),
+ ('6', 'clubs'),
+ ('Q', 'spades'),
+ ('9', 'hearts'),
+ ('6', 'spades'),
+ ('7', 'diamonds'),
+ ('Q', 'hearts'),
+ ('7', 'hearts'),
+ ('8', 'spades'),
+ ('A', 'clubs'),
+ ('8', 'hearts'),
+ ('6', 'hearts'),
+ ('A', 'hearts'),
+ ('10', 'diamonds'),
+ ('K', 'hearts'),
+ ('9', 'spades'),
+ ('6', 'diamonds'),
+ ('10', 'spades'),
+ ('J', 'diamonds'),
+ ('A', 'diamonds'),
+ ('K', 'spades')]
+
+
+ 
 
 def gameset(game,
             attack_flag,
@@ -20,10 +65,12 @@ def gameset(game,
             episode, 
             game_log,
             reward_value,
+            margin_attacker,
+            margin_defender,            
             gamma =.99
             ):
     
-    game.create_deck()
+    #game.create_deck()
     #game.deal_cards()
     
     
@@ -57,7 +104,7 @@ def gameset(game,
         #print("big_loop_done = ", big_loop_done, 'counter = ', counter)
         counter = counter + 1
         
-        played_cards, reward_attacker, reward_defender, output_defender, output_attacker, game_log, done = game_turns( game, 
+        played_cards, reward_attacker, reward_defender, output_defender, output_attacker, game_log = game_turns( game, 
                                                                                                       attacker,
                                                                                                       defender,
                                                                                                       attack_flag,
@@ -71,18 +118,20 @@ def gameset(game,
                                                                                                       game_log,
                                                                                                       attacker_net,
                                                                                                       defender_net,
-                                                                                                      reward_value
+                                                                                                      reward_value,
+                                                                                                      margin_attacker,
+                                                                                                      margin_defender
                                                                                                       )
-        # deck_status = game.refill_hands(attacker,defender)
-        # if deck_status == 0:
-        #     if not game.players[attacker]:
-        #        # reward_attacker = reward_attacker + 3 * reward_value  # FIXME!
-        #         print("Loop is done")
-        #         big_loop_done = True
-        #     if not game.players[defender]:
-        #         print("Loop is done")
-        #        # reward_defender = reward_defender + 3 * reward_value
-        #         big_loop_done = True
+        deck_status = game.refill_hands(attacker,defender)
+        if deck_status == 0:
+            if not game.players[attacker]:
+                # reward_attacker = reward_attacker + 3 * reward_value  # FIXME!
+                print("Loop is done")
+                big_loop_done = True
+            if not game.players[defender]:
+                print("Loop is done")
+                # reward_defender = reward_defender + 3 * reward_value
+                big_loop_done = True
                 
         if any(log_entry['result'] == "Wrong card chosen" for log_entry in game_log): big_loop_done = True
         
@@ -97,7 +146,7 @@ def gameset(game,
         #print("big_loop_done = ", big_loop_done, 'counter = ', counter) 
         if reward_attacker != 0: reward_attacker = reward_attacker/reward_attacker
         if reward_defender != 0: reward_defender = reward_defender/reward_defender
-        big_loop_done = True
+        #big_loop_done = True
         
         # print("reward_attacker.dtype = ", reward_attacker.dtype)
         # print("reward_defender.dtype = ", reward_defender.dtype)

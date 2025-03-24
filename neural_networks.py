@@ -17,17 +17,19 @@ class CardNN(nn.Module):
         self.fc12 = nn.Linear(1,1) # attacking flag 
         self.fc13 = nn.Linear(input_size , 32) 
         self.fc14 = nn.Linear(input_size , 32)
-        self.fc2 = nn.Linear(129, 64)   # 128 _ dimention of a flag
+        self.fc15 = nn.Linear(1,1) # attacking card index 
+        self.fc2 = nn.Linear(130, 64)   # 128 _ dimention of a flag
         self.fc3 = nn.Linear(64, output_size)
         self.softmax = nn.Softmax(dim=1)  # Add softmax layer
 
-    def forward(self, x1,x2,x3,x4):
+    def forward(self, x1,x2,x3,x4,x5):
         x1 = torch.relu(self.fc11(x1))
         x2 = torch.relu(self.fc12(x2))
         x3 = torch.relu(self.fc13(x3))
         x4 = torch.relu(self.fc14(x4))
-        if len(x1.shape) == 2: x = torch.cat((x1,x2,x3,x4),1)
-        if len(x1.shape) == 1: x = torch.cat((x1,x2,x3,x4),0)
+        x5 = self.fc15(x5)
+        if len(x1.shape) == 2: x = torch.cat((x1,x2,x3,x4,x5),1)
+        if len(x1.shape) == 1: x = torch.cat((x1,x2,x3,x4,x5),0)
         x = torch.relu(self.fc2(x))
         x = self.fc3(x)
         return self.softmax(x)  # Apply softmax to the output
@@ -36,6 +38,7 @@ class CardNN(nn.Module):
 attacker_net = CardNN()
 defender_net = CardNN()
 
+lr = 1e-4
 # Optimizers for both networks
-attacker_optimizer = optim.Adam(attacker_net.parameters(), lr=0.001)
-defender_optimizer = optim.Adam(defender_net.parameters(), lr=0.001)
+attacker_optimizer = optim.Adam(attacker_net.parameters(), lr=lr)
+defender_optimizer = optim.Adam(defender_net.parameters(), lr=lr)

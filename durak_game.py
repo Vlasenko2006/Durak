@@ -34,7 +34,7 @@ class DurakGame:
             while len(self.players[player_index]) < 6 and self.deck:
                 self.draw_card(player_index)
             if not self.deck:
-                print(f"Player {player_index + 1} has {len(self.players[player_index])} cards. Deck is empty, no more cards to draw.")
+            #    print(f"Player {player_index + 1} has {len(self.players[player_index])} cards. Deck is empty, no more cards to draw.")
                 deck_status = 0
         return deck_status
 
@@ -45,10 +45,16 @@ class DurakGame:
             state[index] = 1
         return state
     
+    # def update_state(self, gamer_id, card_index, state):
+    #     for card in self.players[gamer_id]:
+    #         state[0, card_index] = state[0, card_index] + 1
+    #     return state
+    
     def update_state(self, gamer_id, card_index, state):
+        new_state = state.clone()  # Clone the state to avoid in-place modification
         for card in self.players[gamer_id]:
-            state[0, card_index] = 1
-        return state
+            new_state[0, card_index] = 1
+        return new_state
 
     def card_to_index(self, card):
         value, suit = card
