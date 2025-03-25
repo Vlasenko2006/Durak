@@ -5,10 +5,10 @@ import random
 class DurakGame:
     def __init__(self):
         self.deck = self.create_deck()
-        self.trump = self.deck[-1]  # Last card in the shuffled deck is the trump card
-        self.trump_suit = self.trump[1]  # Suit of the trump card
         self.players = [[], []]  # Two players' hands
         self.deal_cards()
+        self.trump = self.deck[-1]  # Last card in the shuffled deck is the trump card
+        self.trump_suit = self.trump[1]  # Suit of the trump card
 
     def create_deck(self):
         suits = ['spades', 'hearts', 'diamonds', 'clubs']

@@ -18,42 +18,42 @@ import numpy as np
 
 
 
-deck = [('8', 'clubs'),
- ('7', 'spades'),
- ('J', 'clubs'),
- ('A', 'spades'),
- ('J', 'hearts'),
- ('Q', 'clubs'),
- ('7', 'clubs'),
- ('9', 'diamonds'),
- ('9', 'clubs'),
- ('10', 'clubs'),
- ('J', 'spades'),
- ('K', 'clubs'),
- ('10', 'hearts'),
- ('K', 'diamonds'),
- ('8', 'diamonds'),
- ('Q', 'diamonds'),
- ('6', 'clubs'),
- ('Q', 'spades'),
- ('9', 'hearts'),
- ('6', 'spades'),
- ('7', 'diamonds'),
- ('Q', 'hearts'),
- ('7', 'hearts'),
- ('8', 'spades'),
- ('A', 'clubs'),
- ('8', 'hearts'),
- ('6', 'hearts'),
- ('A', 'hearts'),
- ('10', 'diamonds'),
- ('K', 'hearts'),
- ('9', 'spades'),
- ('6', 'diamonds'),
- ('10', 'spades'),
- ('J', 'diamonds'),
- ('A', 'diamonds'),
- ('K', 'spades')]
+# deck = [('8', 'clubs'),
+#  ('7', 'spades'),
+#  ('J', 'clubs'),
+#  ('A', 'spades'),
+#  ('J', 'hearts'),
+#  ('Q', 'clubs'),
+#  ('7', 'clubs'),
+#  ('9', 'diamonds'),
+#  ('9', 'clubs'),
+#  ('10', 'clubs'),
+#  ('J', 'spades'),
+#  ('K', 'clubs'),
+#  ('10', 'hearts'),
+#  ('K', 'diamonds'),
+#  ('8', 'diamonds'),
+#  ('Q', 'diamonds'),
+#  ('6', 'clubs'),
+#  ('Q', 'spades'),
+#  ('9', 'hearts'),
+#  ('6', 'spades'),
+#  ('7', 'diamonds'),
+#  ('Q', 'hearts'),
+#  ('7', 'hearts'),
+#  ('8', 'spades'),
+#  ('A', 'clubs'),
+#  ('8', 'hearts'),
+#  ('6', 'hearts'),
+#  ('A', 'hearts'),
+#  ('10', 'diamonds'),
+#  ('K', 'hearts'),
+#  ('9', 'spades'),
+#  ('6', 'diamonds'),
+#  ('10', 'spades'),
+#  ('J', 'diamonds'),
+#  ('A', 'diamonds'),
+#  ('K', 'spades')]
 
 
  
@@ -70,8 +70,8 @@ def gameset(game,
             gamma =.99
             ):
     
-    #game.create_deck()
-    #game.deal_cards()
+    game.create_deck()
+
     
     
     # attacker_ID
@@ -103,34 +103,35 @@ def gameset(game,
     while not big_loop_done:
         #print("big_loop_done = ", big_loop_done, 'counter = ', counter)
         counter = counter + 1
+        print("counter = ", counter)
         
-        played_cards, reward_attacker, reward_defender, output_defender, output_attacker, game_log = game_turns( game, 
-                                                                                                      attacker,
-                                                                                                      defender,
-                                                                                                      attack_flag,
-                                                                                                      defend_flag,
-                                                                                                      played_cards,
-                                                                                                      taken_cards,
-                                                                                                      state_attacker,
-                                                                                                      state_defender,
-                                                                                                      deck,
-                                                                                                      episode, 
-                                                                                                      game_log,
-                                                                                                      attacker_net,
-                                                                                                      defender_net,
-                                                                                                      reward_value,
-                                                                                                      margin_attacker,
-                                                                                                      margin_defender
-                                                                                                      )
+        played_cards, reward_attacker, reward_defender,\
+            output_defender, output_attacker, game_log = game_turns( game, 
+                                                                    attacker,
+                                                                    defender,
+                                                                    attack_flag,
+                                                                    defend_flag,
+                                                                    played_cards,
+                                                                    taken_cards,
+                                                                    state_attacker,
+                                                                    state_defender,
+                                                                    deck,
+                                                                    episode, 
+                                                                    game_log,
+                                                                    attacker_net,
+                                                                    defender_net,
+                                                                    reward_value,
+                                                                    counter, 
+                                                                    margin_attacker,
+                                                                    margin_defender
+                                                                    )
         deck_status = game.refill_hands(attacker,defender)
         if deck_status == 0:
             if not game.players[attacker]:
-                # reward_attacker = reward_attacker + 3 * reward_value  # FIXME!
                 print("Loop is done")
                 big_loop_done = True
             if not game.players[defender]:
                 print("Loop is done")
-                # reward_defender = reward_defender + 3 * reward_value
                 big_loop_done = True
                 
         if any(log_entry['result'] == "Wrong card chosen" for log_entry in game_log): big_loop_done = True
@@ -159,12 +160,7 @@ def gameset(game,
             target_attacker = Q_attacker_previous + gamma * reward_attacker
             target_defender = Q_defender_previous + gamma * reward_defender
         
-        # print("target_attacker.dtype = ", target_attacker.dtype)
-        # print("target_defender.dtype = ", target_defender.dtype)
-        # print("Q_attacker_previous.dtype = ", Q_attacker_previous.dtype)
-        # print("Q_defender_previous.dtype = ", Q_defender_previous.dtype)
-        # print(f"Episode: {episode + 1}, Reward Attacker: {reward_attacker}, Reward Defender: {reward_defender}")
-        
+
         # Update states
         Q_attacker_previous = reward_attacker
         Q_attacker_previous = reward_defender
@@ -172,5 +168,6 @@ def gameset(game,
         # Calculate loss
         loss_attacker = loss_attacker + F.mse_loss(target_attacker, Q_attacker_previous)
         loss_defender = loss_defender + F.mse_loss(target_defender, Q_defender_previous)
-        
+    
+    #print("BIG LOOP DONE")
     return loss_attacker, loss_defender, game_log

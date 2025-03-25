@@ -1,21 +1,21 @@
 import torch
 from durak_game import DurakGame
-from visualize_games import visualize_games
+from visualize_games import visualize_games, moving_mean
 from gameset import gameset
 from neural_networks import attacker_optimizer, defender_optimizer
 import numpy as np
 import matplotlib.pyplot as plt
 
 
-torch.autograd.set_detect_anomaly(True)
+#torch.autograd.set_detect_anomaly(True)
 
 # Hyperparameters
 gamma = 0.99
 batch_size = 1
-num_episodes = 4
+num_episodes = 1
 num_games_to_visualize = 3
 reward_value = torch.tensor([1.], dtype=torch.float32, requires_grad=True)
-margin_attacker = 0
+margin_attacker = 0.
 margin_defender = 0. 
 
 # Unicode characters for card suits
@@ -29,7 +29,8 @@ suit_symbols = {
 # Store game data for visualization
 game_data = []
 game_log = []  # Variable to hold all game steps
-accumulate_grad = np.zeros(num_episodes)
+accumulate_grad_att = np.zeros(num_episodes)
+accumulate_grad_def = np.zeros(num_episodes)
 
 attack_flag = torch.tensor([1.], dtype=torch.float32, requires_grad=True).unsqueeze(0)
 defend_flag = -1 * torch.tensor([1.], dtype=torch.float32, requires_grad=True).unsqueeze(0)
@@ -41,6 +42,8 @@ def train_networks():
     deck = [(rank, suit) for rank in ['6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A'] for suit in ['clubs', 'diamonds', 'hearts', 'spades']]
     
     for episode in range(num_episodes):
+        
+        print("Starting")
         
         # Zero gradients at the start of each batch
         attacker_optimizer.zero_grad()
@@ -69,7 +72,7 @@ def train_networks():
             accumulated_loss_attacker = accumulated_loss_attacker + loss_attacker_loc / batch_size
             accumulated_loss_defender = accumulated_loss_defender + loss_defender_loc / batch_size           
         
-    #    print("Accumulated Losses:", accumulated_loss_attacker, accumulated_loss_defender)
+        print(f"num_episodes {episode} Accumulated Losses:", accumulated_loss_attacker, accumulated_loss_defender)
 
         # Perform backward pass after accumulating the losses
         accumulated_loss_attacker.backward(retain_graph=True)
@@ -79,12 +82,18 @@ def train_networks():
         attacker_optimizer.step()
         defender_optimizer.step()
         
-        accumulate_grad[episode] = accumulated_loss_attacker.item()
+        accumulate_grad_att[episode] = accumulated_loss_attacker.item()
+        accumulate_grad_def[episode] = accumulated_loss_defender.item()
 
-    # Visualize the last 3 games
-    plt.plot(accumulate_grad)
+    #Visualize the last 3 games
+    plt.plot(moving_mean(accumulate_grad_att, window_size=5))
     plt.show()
-    return game_data
+    
+    plt.plot(moving_mean(accumulate_grad_def, window_size=5))
+    plt.show()
+    
+    return game_data, game_log
 
 if __name__ == "__main__":
     game_data = train_networks()
+    visualize_games(game_log)

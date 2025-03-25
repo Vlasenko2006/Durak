@@ -7,6 +7,10 @@ Created on Thu Mar 20 09:04:32 2025
 """
 
 import matplotlib.pyplot as plt
+import numpy as np
+
+def moving_mean(arr, window_size=5):
+    return np.convolve(arr, np.ones(window_size)/window_size, mode='valid')
 
 # Unicode characters for card suits
 suit_symbols = {
@@ -26,7 +30,7 @@ def visualize_games(game_log):
             episodes[episode] = []
         episodes[episode].append(log_entry)
 
-    fig, axes = plt.subplots(3, 1, figsize=(7, 7))
+    fig, axes = plt.subplots(len(episodes), 1, figsize=(7, 7))
 
     if len(episodes) == 1:
         axes = [axes]  # Ensure axes is iterable
