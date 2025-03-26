@@ -55,8 +55,7 @@ class CardPlotter(tk.Tk):
         self.no_more_cards_left = no_more_cards_left
         self.button_text = button_text 
         self.mouse_clicks = 0
-        self.cards_on_a_table = []
-        self.player0_cards = []  # New variable to store cards from the upper row
+        self.cards_on_the_table = [[],[]]  
         self.num_open_cards = num_open_cards
         self.num_closed_cards = num_closed_cards
         self.is_destroying = False  # Flag to indicate whether the application is being destroyed
@@ -225,7 +224,7 @@ class CardPlotter(tk.Tk):
         # Place the clicked card in the middle of the table
         clicked_label.place(in_=self.table, relx=0.5, rely=0.25, anchor=tk.CENTER)
         self.table_card_labels.append(clicked_label)
-        self.cards_on_a_table.append(clicked_label.card_info)
+        self.cards_on_the_table[1].append(clicked_label.card_info)
 
         # Check if there are no more cards left in either row
         if self.mouse_clicks == self.num_closed_cards or self.mouse_clicks == self.num_open_cards:
@@ -261,8 +260,8 @@ class CardPlotter(tk.Tk):
             # Place the card in the middle of the table, overlapping the last clicked card
             label.place(in_=self.table, relx=0.5, rely=0.75, anchor=tk.CENTER)
             self.table_card_labels.append(label)
-            self.cards_on_a_table.append(label.card_info)
-            self.player0_cards.append(label.card_info)  # Add to player0_cards
+            self.cards_on_the_table[1].append(label.card_info)
+            self.cards_on_the_table[0].append(label.card_info)  # Add to player0_cards
 
         # Check if there are no more cards left in either row
         if not self.upper_card_labels and not self.lower_card_labels:
@@ -294,8 +293,8 @@ class CardPlotter(tk.Tk):
     def finish_game(self):
         self.is_destroying = True
         print(f"No more cards remain. Total mouse clicks: {self.mouse_clicks}")
-        print(f"Cards on the table: {self.cards_on_a_table}")
-        print(f"Player 0 cards: {self.player0_cards}")  # Print player0 cards
+        print(f"Cards on the table: {self.cards_on_the_table[1]}")
+        print(f"Player 0 cards: {self.cards_on_the_table[0]}")  # Print player0 cards
         self.destroy()
 
 if __name__ == "__main__":
