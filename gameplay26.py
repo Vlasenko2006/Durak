@@ -56,6 +56,9 @@ class CardPlotter(tk.Tk):
         self.button_text = button_text 
         self.mouse_clicks = 0
         self.cards_on_a_table = []
+        self.num_open_cards = num_open_cards
+        self.num_closed_cards = num_closed_cards
+        self.is_destroying = False  # Flag to indicate whether the application is being destroyed
         
         self.title("Durak Game")
 
@@ -224,16 +227,21 @@ class CardPlotter(tk.Tk):
         self.cards_on_a_table.append(clicked_label.card_info)
 
         # Check if there are no more cards left in either row
-        if not self.upper_card_labels and not self.lower_card_labels:
+        if self.mouse_clicks == self.num_closed_cards or self.mouse_clicks ==self.num_open_cards:
             self.finish_game()
 
         # Wait for half a second (500 milliseconds) and then remove one black card from the top row and add it to the bottom row
         self.after(500, self.pop_card_from_top)
 
     def pop_card_from_top(self):
+        if self.is_destroying:
+            return
+
         if self.upper_card_labels:
             # Remove the first card in the upper row
             label_to_remove = self.upper_card_labels.pop(0)
+            if not self.winfo_exists():
+                return
             label_to_remove.grid_forget()
 
             # Get the rank and suit of the card to be added to the bottom row
@@ -282,6 +290,7 @@ class CardPlotter(tk.Tk):
         finish_button.grid(row=1, columnspan=10, pady=(10, 0))
 
     def finish_game(self):
+        self.is_destroying = True
         print(f"No more cards remain. Total mouse clicks: {self.mouse_clicks}")
         print(f"Cards on the table: {self.cards_on_a_table}")
         self.destroy()
@@ -290,25 +299,28 @@ if __name__ == "__main__":
     # Example usage with user-specified card dimensions and number of cards
     card_width = 150  # User-specified card width
     card_height = 200  # User-specified card height
-    num_closed_cards = 7  # User-specified number of closed cards
-    num_open_cards = 4  # User-specified number of open cards
+    num_closed_cards = 2  # User-specified number of closed cards
+    num_open_cards = 3  # User-specified number of open cards
     
     app = CardPlotter(card_width,
                       card_height,
                       num_closed_cards,
                       num_open_cards, 
-                      button_text = "Finish attack",
+                      button_text = "Finish the attack",
                       deck_is_empty=False, 
                       factor=3
                       )
     app.mainloop()
     mouse_clicks = app.mouse_clicks
+    
     app = CardPlotter(card_width, 
                       card_height,
                       num_closed_cards,
                       num_open_cards,
-                      button_text = "Finish defence",
+                      button_text = "Withdraw",
                       deck_is_empty=True, 
                       no_more_cards_left = True, 
                       factor=3)
     app.mainloop()
+   # withdraw = app.withdraw
+    mouse_clicks = app.mouse_clicks
