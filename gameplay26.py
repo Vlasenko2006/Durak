@@ -55,7 +55,8 @@ class CardPlotter(tk.Tk):
         self.no_more_cards_left = no_more_cards_left
         self.button_text = button_text 
         self.mouse_clicks = 0
-        self.cards_on_the_table = [[],[]]  
+        self.cards_on_the_table = []  
+        self.players_cards = []  
         self.num_open_cards = num_open_cards
         self.num_closed_cards = num_closed_cards
         self.is_destroying = False  # Flag to indicate whether the application is being destroyed
@@ -224,14 +225,16 @@ class CardPlotter(tk.Tk):
         # Place the clicked card in the middle of the table
         clicked_label.place(in_=self.table, relx=0.5, rely=0.25, anchor=tk.CENTER)
         self.table_card_labels.append(clicked_label)
-        self.cards_on_the_table[1].append(clicked_label.card_info)
+        self.cards_on_the_table.append(clicked_label.card_info)
 
-        # Check if there are no more cards left in either row
-        if self.mouse_clicks == self.num_closed_cards or self.mouse_clicks == self.num_open_cards:
-            self.finish_game()
 
         # Wait for half a second (500 milliseconds) and then remove one black card from the top row and add it to the bottom row
         self.after(500, self.pop_card_from_top)
+        
+        # Check if there are no more cards left in either row
+        # if self.mouse_clicks == self.num_closed_cards or self.mouse_clicks == self.num_open_cards:
+        #     self.finish_game()
+        #     return
 
     def pop_card_from_top(self):
         if self.is_destroying:
@@ -260,12 +263,18 @@ class CardPlotter(tk.Tk):
             # Place the card in the middle of the table, overlapping the last clicked card
             label.place(in_=self.table, relx=0.5, rely=0.75, anchor=tk.CENTER)
             self.table_card_labels.append(label)
-            self.cards_on_the_table[1].append(label.card_info)
-            self.cards_on_the_table[0].append(label.card_info)  # Add to player0_cards
+            self.cards_on_the_table.append(label.card_info)
+            self.players_cards.append(label.card_info)  # Add to player0_cards
 
         # Check if there are no more cards left in either row
-        if not self.upper_card_labels and not self.lower_card_labels:
+        if (not self.upper_card_labels and not self.lower_card_labels) or \
+            (self.mouse_clicks == self.num_closed_cards or self.mouse_clicks == self.num_open_cards):
             self.finish_game()
+            
+        # Check if there are no more cards left in either row
+        # if self.mouse_clicks == self.num_closed_cards or self.mouse_clicks == self.num_open_cards:
+        #     self.finish_game()
+        #     return
     
     def draw_card_back_opposite_left(self):
         if not self.deck_is_empty:
@@ -293,16 +302,16 @@ class CardPlotter(tk.Tk):
     def finish_game(self):
         self.is_destroying = True
         print(f"No more cards remain. Total mouse clicks: {self.mouse_clicks}")
-        print(f"Cards on the table: {self.cards_on_the_table[1]}")
-        print(f"Player 0 cards: {self.cards_on_the_table[0]}")  # Print player0 cards
+        print(f"Cards on the table: {self.cards_on_the_table}")
+        print(f"Player 0 cards: {self.players_cards}")  # Print player0 cards
         self.destroy()
 
 if __name__ == "__main__":
     # Example usage with user-specified card dimensions and number of cards
     card_width = 150  # User-specified card width
     card_height = 200  # User-specified card height
-    num_closed_cards = 7  # User-specified number of closed cards
-    num_open_cards = 4  # User-specified number of open cards
+    num_closed_cards = 1  # User-specified number of closed cards
+    num_open_cards = 2  # User-specified number of open cards
     
     app = CardPlotter(card_width,
                       card_height,
