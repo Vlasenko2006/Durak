@@ -56,6 +56,7 @@ class CardPlotter(tk.Tk):
         self.button_text = button_text 
         self.mouse_clicks = 0
         self.cards_on_a_table = []
+        self.player0_cards = []  # New variable to store cards from the upper row
         self.num_open_cards = num_open_cards
         self.num_closed_cards = num_closed_cards
         self.is_destroying = False  # Flag to indicate whether the application is being destroyed
@@ -227,7 +228,7 @@ class CardPlotter(tk.Tk):
         self.cards_on_a_table.append(clicked_label.card_info)
 
         # Check if there are no more cards left in either row
-        if self.mouse_clicks == self.num_closed_cards or self.mouse_clicks ==self.num_open_cards:
+        if self.mouse_clicks == self.num_closed_cards or self.mouse_clicks == self.num_open_cards:
             self.finish_game()
 
         # Wait for half a second (500 milliseconds) and then remove one black card from the top row and add it to the bottom row
@@ -261,6 +262,7 @@ class CardPlotter(tk.Tk):
             label.place(in_=self.table, relx=0.5, rely=0.75, anchor=tk.CENTER)
             self.table_card_labels.append(label)
             self.cards_on_a_table.append(label.card_info)
+            self.player0_cards.append(label.card_info)  # Add to player0_cards
 
         # Check if there are no more cards left in either row
         if not self.upper_card_labels and not self.lower_card_labels:
@@ -293,14 +295,15 @@ class CardPlotter(tk.Tk):
         self.is_destroying = True
         print(f"No more cards remain. Total mouse clicks: {self.mouse_clicks}")
         print(f"Cards on the table: {self.cards_on_a_table}")
+        print(f"Player 0 cards: {self.player0_cards}")  # Print player0 cards
         self.destroy()
 
 if __name__ == "__main__":
     # Example usage with user-specified card dimensions and number of cards
     card_width = 150  # User-specified card width
     card_height = 200  # User-specified card height
-    num_closed_cards = 2  # User-specified number of closed cards
-    num_open_cards = 3  # User-specified number of open cards
+    num_closed_cards = 7  # User-specified number of closed cards
+    num_open_cards = 4  # User-specified number of open cards
     
     app = CardPlotter(card_width,
                       card_height,
