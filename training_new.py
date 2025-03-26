@@ -11,8 +11,8 @@ import matplotlib.pyplot as plt
 
 # Hyperparameters
 gamma = 0.99
-batch_size = 1
-num_episodes = 1
+batch_size = 16
+num_episodes = 500
 num_games_to_visualize = 3
 reward_value = torch.tensor([1.], dtype=torch.float32, requires_grad=True)
 margin_attacker = 0.
@@ -37,6 +37,8 @@ defend_flag = -1 * torch.tensor([1.], dtype=torch.float32, requires_grad=True).u
 
 
 def train_networks():
+    margin_attacker = 0.
+    margin_defender = 0. 
     global game_log  # Ensure we use the global variable
     # Define the deck of cards
     deck = [(rank, suit) for rank in ['6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A'] for suit in ['clubs', 'diamonds', 'hearts', 'spades']]
@@ -44,6 +46,19 @@ def train_networks():
     for episode in range(num_episodes):
         
         print("Starting")
+        
+        if episode % 50 == 0 and episode > 0:
+            margin_attacker += 0.05
+            margin_defender += 0.05
+            accumulate_grad_att
+            att_to_show = accumulate_grad_att
+            att_to_show[episode:] = np.nan
+            plt.plot(moving_mean(att_to_show, window_size=5))
+            plt.show()
+            def_to_show = accumulate_grad_def
+            def_to_show[episode:] = np.nan
+            plt.plot(moving_mean(def_to_show, window_size=5))
+            plt.show()
         
         # Zero gradients at the start of each batch
         attacker_optimizer.zero_grad()
@@ -57,7 +72,8 @@ def train_networks():
                 print("Exists")
                 del game_log
         
-            loss_attacker_loc, loss_defender_loc, game_log = gameset(game,
+            loss_attacker_loc, loss_defender_loc, game_log,\
+                attacker_net, defender_net = gameset(game,
                         attack_flag,
                         defend_flag,
                         deck,
@@ -85,6 +101,11 @@ def train_networks():
         accumulate_grad_att[episode] = accumulated_loss_attacker.item()
         accumulate_grad_def[episode] = accumulated_loss_defender.item()
 
+
+
+        if episode % 100 == 0 and batch > 0:
+            torch.save(attacker_net.state_dict(), "attacker_" + str(episode))
+            torch.save(defender_net.state_dict(), "attacker_" + str(episode))
     #Visualize the last 3 games
     plt.plot(moving_mean(accumulate_grad_att, window_size=5))
     plt.show()
@@ -92,8 +113,8 @@ def train_networks():
     plt.plot(moving_mean(accumulate_grad_def, window_size=5))
     plt.show()
     
-    return game_data, game_log
+    return game_log, accumulate_grad_att, accumulate_grad_def
 
 if __name__ == "__main__":
-    game_data = train_networks()
-    visualize_games(game_log)
+    game_log, accumulate_grad_att, accumulate_grad_def = train_networks()
+    #visualize_games(game_log)

@@ -26,9 +26,6 @@ def rewards(game_log,
             counter,
             verbose = False):
     
- # attacker gets reward if it forces defender to defend more than one turn       
- reward_attacker = reward_attacker + (step_number - 1)*reward_value  * attacker_card_prob
-
  
  if defence_decision == "failure":
      if verbose: print("Defence Failure")
@@ -37,7 +34,7 @@ def rewards(game_log,
      
 
  elif defence_decision == "withdraw":
-     print("Withdraw")
+    # print("Withdraw")
    #  print("RW = ", reward_value)
      result = "Attacker wins"
      done = True
@@ -56,7 +53,6 @@ def rewards(game_log,
 
      # No more cards in hand remaining, defender / attacker wins
      if not game.players[attacker]:
-         reward_attacker =  reward_value * attacker_card_prob
          done = True
          result = "Attacker wins, no cards remaining"
          played_cards = not_playing_cards.clone()
@@ -69,12 +65,16 @@ def rewards(game_log,
          result = "No winner, no cards remaining"
          played_cards = not_playing_cards.clone()
      else:
-         result = "Defender wins 2"
+         result = "Defender wins"
          
- if result != "Wrong card chosen" or result != "Attacker wins":
+ if result == "Attacker wins, no cards remaining" or result == "Defender wins":
      reward_defender = reward_defender + reward_value * defender_card_prob 
- 
-
+     
+ if result == "Attacker wins" or result == "Attacker wins, no cards remaining":
+     reward_attacker = reward_attacker + reward_value  * attacker_card_prob
+     
+     
+# print('reward_attacker', reward_attacker, 'reward_defender', reward_defender, "result = ", result)
 # print(winner)
  
  if verbose: print(f"Episode {episode + 1}:" + result)
