@@ -1,6 +1,5 @@
 import tkinter as tk
 from PIL import Image, ImageTk, ImageDraw, ImageFont
-import time
 
 # Define the cards for the upper and lower rows
 card_top = [
@@ -231,14 +230,10 @@ class CardPlotter(tk.Tk):
         # Wait for half a second (500 milliseconds) and then remove one black card from the top row and add it to the bottom row
         self.after(500, self.pop_card_from_top)
         
+        # Check if there are no more cards left in either row
         if self.mouse_clicks == self.num_closed_cards or self.mouse_clicks == self.num_open_cards:
-            self.after(2000, self.finish_game)
+            self.finish_game()
             return
-        
-        # # Check if there are no more cards left in either row
-        # if self.mouse_clicks >= self.num_closed_cards + self.num_open_cards:
-        #     self.after(2000, self.finish_game)
-        #     return
 
     def pop_card_from_top(self):
         if self.is_destroying:
@@ -269,10 +264,11 @@ class CardPlotter(tk.Tk):
             self.cards_on_the_table.append(label.card_info)
             self.players_cards.append(label.card_info)  # Add to player0_cards
 
-            # Check if there are no more cards left in either row
-            if not self.upper_card_labels and not self.lower_card_labels:
-                print("Popping card from the top")
-                self.after(2000, self.finish_game)
+        # Check if there are no more cards left in either row
+        if (not self.upper_card_labels and not self.lower_card_labels) or \
+            (self.mouse_clicks == self.num_closed_cards or self.mouse_clicks == self.num_open_cards):
+            self.finish_game()
+            
 
     
     def draw_card_back_opposite_left(self):
@@ -309,8 +305,8 @@ if __name__ == "__main__":
     # Example usage with user-specified card dimensions and number of cards
     card_width = 150  # User-specified card width
     card_height = 200  # User-specified card height
-    num_closed_cards = 1  # User-specified number of closed cards
-    num_open_cards = 1  # User-specified number of open cards
+    num_closed_cards = 3  # User-specified number of closed cards
+    num_open_cards = 3  # User-specified number of open cards
     
     app = CardPlotter(card_width,
                       card_height,
@@ -332,4 +328,5 @@ if __name__ == "__main__":
                       no_more_cards_left = True, 
                       factor=3)
     app.mainloop()
+   # withdraw = app.withdraw
     mouse_clicks = app.mouse_clicks

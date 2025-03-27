@@ -1,7 +1,8 @@
 import tkinter as tk
 from PIL import Image, ImageTk, ImageDraw, ImageFont
-import time
-
+from neural_networks import attacker_net
+import torch
+from durak_game import DurakGame
 # Define the cards for the upper and lower rows
 card_top = [
     ("6", "clubs"),
@@ -39,12 +40,21 @@ suit_colors = {
     'spades': 'black'
 }
 
+
+game = DurakGame()
+game.create_deck()
+player0 = attacker_net
+player0.load_state_dict(torch.load("attacker1_1100"))
+
+
+
 class CardPlotter(tk.Tk):
     def __init__(self, card_width, 
                  card_height,
                  num_closed_cards,
                  num_open_cards,
                  button_text,
+                 attack_flag,
                  deck_is_empty = False, 
                  no_more_cards_left = False,
                  distance=2.5, 
@@ -60,7 +70,21 @@ class CardPlotter(tk.Tk):
         self.players_cards = []  
         self.num_open_cards = num_open_cards
         self.num_closed_cards = num_closed_cards
+        self.attack_flag = attack_flag
         self.is_destroying = False  # Flag to indicate whether the application is being destroyed
+        
+        
+        deck_status = game.refill_hands(attacker,defender)
+        if deck_status == 0:
+            if not game.players[attacker]:
+               # print("Loop is done")
+                big_loop_done = True
+            if not game.players[defender]:
+               # print("Loop is done")
+                big_loop_done = True
+        
+        
+        
         
         self.title("Durak Game")
 
@@ -109,6 +133,10 @@ class CardPlotter(tk.Tk):
 
         # Add the Finish button just above the row with open cards
         self.add_finish_button()
+
+        # Start the game based on the attack_flag
+        if self.attack_flag == -1:
+            self.after(1000, self.pop_card_from_top)
 
     def create_card_image(self, rank, suit):
         width, height = self.card_width, self.card_height
@@ -227,18 +255,12 @@ class CardPlotter(tk.Tk):
         self.table_card_labels.append(clicked_label)
         self.cards_on_the_table.append(clicked_label.card_info)
 
-
         # Wait for half a second (500 milliseconds) and then remove one black card from the top row and add it to the bottom row
         self.after(500, self.pop_card_from_top)
         
         if self.mouse_clicks == self.num_closed_cards or self.mouse_clicks == self.num_open_cards:
             self.after(2000, self.finish_game)
             return
-        
-        # # Check if there are no more cards left in either row
-        # if self.mouse_clicks >= self.num_closed_cards + self.num_open_cards:
-        #     self.after(2000, self.finish_game)
-        #     return
 
     def pop_card_from_top(self):
         if self.is_destroying:
@@ -305,18 +327,19 @@ class CardPlotter(tk.Tk):
         print(f"Player 0 cards: {self.players_cards}")  # Print player0 cards
         self.destroy()
 
-if __name__ == "__main__":
+if __name__ == "__main__":    
     # Example usage with user-specified card dimensions and number of cards
     card_width = 150  # User-specified card width
     card_height = 200  # User-specified card height
-    num_closed_cards = 1  # User-specified number of closed cards
-    num_open_cards = 1  # User-specified number of open cards
+    num_closed_cards = 3  # User-specified number of closed cards
+    num_open_cards = 3  # User-specified number of open cards
     
     app = CardPlotter(card_width,
                       card_height,
                       num_closed_cards,
                       num_open_cards, 
                       button_text = "Finish the attack",
+                      attack_flag = 1,
                       deck_is_empty=False, 
                       factor=3
                       )
@@ -328,6 +351,7 @@ if __name__ == "__main__":
                       num_closed_cards,
                       num_open_cards,
                       button_text = "Withdraw",
+                      attack_flag = -1,
                       deck_is_empty=True, 
                       no_more_cards_left = True, 
                       factor=3)

@@ -1,6 +1,5 @@
 import tkinter as tk
 from PIL import Image, ImageTk, ImageDraw, ImageFont
-import time
 
 # Define the cards for the upper and lower rows
 card_top = [
@@ -55,12 +54,6 @@ class CardPlotter(tk.Tk):
         self.deck_is_empty = deck_is_empty 
         self.no_more_cards_left = no_more_cards_left
         self.button_text = button_text 
-        self.mouse_clicks = 0
-        self.cards_on_the_table = []  
-        self.players_cards = []  
-        self.num_open_cards = num_open_cards
-        self.num_closed_cards = num_closed_cards
-        self.is_destroying = False  # Flag to indicate whether the application is being destroyed
         
         self.title("Durak Game")
 
@@ -193,16 +186,11 @@ class CardPlotter(tk.Tk):
             label.bind("<Button-1>", self.on_card_click)  # Bind left mouse button click event
             self.image_refs.append(card_photo)  # Store reference to prevent garbage collection
             self.lower_card_labels.append(label)  # Store reference to lower row card labels
-            # Store the card information in the label
-            label.card_info = (rank, suit)
 
         # Center the open cards
         self.frame.grid_columnconfigure((0, num_open_cards - 1), weight=1)
 
     def on_card_click(self, event):
-        # Increment the mouse click counter
-        self.mouse_clicks += 1
-        
         # Get the clicked label
         clicked_label = event.widget
 
@@ -218,37 +206,22 @@ class CardPlotter(tk.Tk):
         # Remove the clicked card from the lower row
         clicked_label.grid_forget()
 
-        # Calculate the new position for the card on the table
-        relx_position = 0.1 + 0.05 * len(self.table_card_labels)
+        # Remove any cards currently on the table
+        for label in self.table_card_labels:
+            label.place_forget()
+        self.table_card_labels.clear()
 
         # Place the clicked card in the middle of the table
-        clicked_label.place(in_=self.table, relx=relx_position, rely=0.25, anchor=tk.CENTER)
-        clicked_label.tkraise()  # Raise the card to the top of the stacking order
+        clicked_label.place(in_=self.table, relx=0.5, rely=0.25, anchor=tk.CENTER)
         self.table_card_labels.append(clicked_label)
-        self.cards_on_the_table.append(clicked_label.card_info)
-
 
         # Wait for half a second (500 milliseconds) and then remove one black card from the top row and add it to the bottom row
         self.after(500, self.pop_card_from_top)
-        
-        if self.mouse_clicks == self.num_closed_cards or self.mouse_clicks == self.num_open_cards:
-            self.after(2000, self.finish_game)
-            return
-        
-        # # Check if there are no more cards left in either row
-        # if self.mouse_clicks >= self.num_closed_cards + self.num_open_cards:
-        #     self.after(2000, self.finish_game)
-        #     return
 
     def pop_card_from_top(self):
-        if self.is_destroying:
-            return
-
         if self.upper_card_labels:
             # Remove the first card in the upper row
             label_to_remove = self.upper_card_labels.pop(0)
-            if not self.winfo_exists():
-                return
             label_to_remove.grid_forget()
 
             # Get the rank and suit of the card to be added to the bottom row
@@ -257,23 +230,15 @@ class CardPlotter(tk.Tk):
             card_photo = ImageTk.PhotoImage(card_image)
             label = tk.Label(self.frame, image=card_photo, bg='grey')
             label.image = card_photo  # Store reference in label
-            label.card_info = (rank, suit)  # Store the card information in the label
 
-            # Calculate the new position for the card on the table
-            relx_position = 0.1 + 0.05 * len(self.table_card_labels)
+            # Remove any cards currently on the table
+            for table_label in self.table_card_labels:
+                table_label.place_forget()
+            self.table_card_labels.clear()
 
-            # Place the card in the middle of the table
-            label.place(in_=self.table, relx=relx_position, rely=0.75, anchor=tk.CENTER)
-            label.tkraise()  # Raise the card to the top of the stacking order
+            # Place the card in the middle of the table, overlapping the last clicked card
+            label.place(in_=self.table, relx=0.5, rely=0.75, anchor=tk.CENTER)
             self.table_card_labels.append(label)
-            self.cards_on_the_table.append(label.card_info)
-            self.players_cards.append(label.card_info)  # Add to player0_cards
-
-            # Check if there are no more cards left in either row
-            if not self.upper_card_labels and not self.lower_card_labels:
-                print("Popping card from the top")
-                self.after(2000, self.finish_game)
-
     
     def draw_card_back_opposite_left(self):
         if not self.deck_is_empty:
@@ -296,40 +261,34 @@ class CardPlotter(tk.Tk):
 
     def add_finish_button(self):
         finish_button = tk.Button(self.frame, text=self.button_text, command=self.finish_game, font=('Helvetica', 14, 'bold'))
-        finish_button.grid(row=1, columnspan=10, pady=(10, 0))
+        finish_button.grid(row=4, columnspan=10, pady=(10, 0))
 
     def finish_game(self):
-        self.is_destroying = True
-        print(f"No more cards remain. Total mouse clicks: {self.mouse_clicks}")
-        print(f"Cards on the table: {self.cards_on_the_table}")
-        print(f"Player 0 cards: {self.players_cards}")  # Print player0 cards
+        print("Game finished")
         self.destroy()
 
 if __name__ == "__main__":
     # Example usage with user-specified card dimensions and number of cards
     card_width = 150  # User-specified card width
     card_height = 200  # User-specified card height
-    num_closed_cards = 1  # User-specified number of closed cards
-    num_open_cards = 1  # User-specified number of open cards
+    num_closed_cards = 7  # User-specified number of closed cards
+    num_open_cards = 4  # User-specified number of open cards
     
     app = CardPlotter(card_width,
                       card_height,
                       num_closed_cards,
                       num_open_cards, 
-                      button_text = "Finish the attack",
+                      button_text = "Finish attack",
                       deck_is_empty=False, 
                       factor=3
                       )
     app.mainloop()
-    mouse_clicks = app.mouse_clicks
-    
     app = CardPlotter(card_width, 
                       card_height,
                       num_closed_cards,
                       num_open_cards,
-                      button_text = "Withdraw",
+                      button_text = "Finish defence",
                       deck_is_empty=True, 
                       no_more_cards_left = True, 
                       factor=3)
     app.mainloop()
-    mouse_clicks = app.mouse_clicks
