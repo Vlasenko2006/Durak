@@ -12,7 +12,7 @@ import matplotlib.pyplot as plt
 # Hyperparameters
 gamma = 0.99
 batch_size = 16
-num_episodes = 500
+num_episodes = 600
 num_games_to_visualize = 3
 reward_value = torch.tensor([1.], dtype=torch.float32, requires_grad=True)
 margin_attacker = 0.
@@ -47,9 +47,11 @@ def train_networks():
         
         print("Starting")
         
-        if episode % 50 == 0 and episode > 0:
+        if episode % 50 == 0 and episode > 0 and margin_attacker<0.5:
+            print("margin_attacker = ", margin_attacker)
             margin_attacker += 0.05
             margin_defender += 0.05
+            print("margin_attacker = ", margin_attacker)
             accumulate_grad_att
             att_to_show = accumulate_grad_att
             att_to_show[episode:] = np.nan

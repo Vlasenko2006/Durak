@@ -13,49 +13,6 @@ import numpy as np
 
 #### Must reset cards for ech player
 
-
-
-
-
-
-# deck = [('8', 'clubs'),
-#  ('7', 'spades'),
-#  ('J', 'clubs'),
-#  ('A', 'spades'),
-#  ('J', 'hearts'),
-#  ('Q', 'clubs'),
-#  ('7', 'clubs'),
-#  ('9', 'diamonds'),
-#  ('9', 'clubs'),
-#  ('10', 'clubs'),
-#  ('J', 'spades'),
-#  ('K', 'clubs'),
-#  ('10', 'hearts'),
-#  ('K', 'diamonds'),
-#  ('8', 'diamonds'),
-#  ('Q', 'diamonds'),
-#  ('6', 'clubs'),
-#  ('Q', 'spades'),
-#  ('9', 'hearts'),
-#  ('6', 'spades'),
-#  ('7', 'diamonds'),
-#  ('Q', 'hearts'),
-#  ('7', 'hearts'),
-#  ('8', 'spades'),
-#  ('A', 'clubs'),
-#  ('8', 'hearts'),
-#  ('6', 'hearts'),
-#  ('A', 'hearts'),
-#  ('10', 'diamonds'),
-#  ('K', 'hearts'),
-#  ('9', 'spades'),
-#  ('6', 'diamonds'),
-#  ('10', 'spades'),
-#  ('J', 'diamonds'),
-#  ('A', 'diamonds'),
-#  ('K', 'spades')]
-
-
  
 
 def gameset(game,
@@ -103,7 +60,7 @@ def gameset(game,
     while not big_loop_done:
         #print("big_loop_done = ", big_loop_done, 'counter = ', counter)
         counter = counter + 1
-        print("counter = ", counter)
+
         
         played_cards, reward_attacker, reward_defender,\
             output_defender, output_attacker, game_log = game_turns( game, 
@@ -128,10 +85,10 @@ def gameset(game,
         deck_status = game.refill_hands(attacker,defender)
         if deck_status == 0:
             if not game.players[attacker]:
-                print("Loop is done")
+               # print("Loop is done")
                 big_loop_done = True
             if not game.players[defender]:
-                print("Loop is done")
+               # print("Loop is done")
                 big_loop_done = True
                 
         if any(log_entry['result'] == "Wrong card chosen" for log_entry in game_log): big_loop_done = True
@@ -143,15 +100,6 @@ def gameset(game,
             attacker = 0
             defender = 1
         
-        #print("deck = ", deck)
-        #print("big_loop_done = ", big_loop_done, 'counter = ', counter) 
-        if reward_attacker != 0: reward_attacker = reward_attacker/reward_attacker
-        if reward_defender != 0: reward_defender = reward_defender/reward_defender
-        #big_loop_done = True
-        
-        # print("reward_attacker.dtype = ", reward_attacker.dtype)
-        # print("reward_defender.dtype = ", reward_defender.dtype)
-    
         # Calculate target Q-values using Bellman's equation
         if counter == 1:
             target_attacker = gamma * reward_attacker
@@ -170,4 +118,4 @@ def gameset(game,
         loss_defender = loss_defender + F.mse_loss(target_defender, Q_defender_previous)
     
     #print("BIG LOOP DONE")
-    return loss_attacker, loss_defender, game_log
+    return loss_attacker, loss_defender, game_log, attacker_net, defender_net
