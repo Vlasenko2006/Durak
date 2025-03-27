@@ -1,12 +1,19 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+Created on Thu Mar 27 15:17:28 2025
+
+@author: andreyvlasenko
+"""
+
 import torch
 from attack import attack
 from defence import defence
 from rewards import rewards
 
-# attack_value is a card (suit, value) that attacker (NN )chooses to attack
-# In the beginning it is None,     
 
-def game_turns(game, 
+
+def game_turn(game, 
                attacker,
                defender,
                attack_flag,
@@ -43,7 +50,7 @@ def game_turns(game,
          
          decision_to_continue_attack,attacker_card_prob,\
              chosen_attackers_card, attacker_card_index, \
-                 cards_on_a_table, done, \
+                 cards_on_a_table, cards_on_a_table, done, \
                      output_attacker = attack(attacker_net, 
                             attacker,
                             attack_value, 

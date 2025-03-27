@@ -24,7 +24,12 @@ def attack(attacker_net,
     
     # Attacker's turn
     done = False
+    # Get attackers cards (suit,value)     
     valid_attacker_cards = [card for card in game.players[attacker] if card in deck]
+    
+    # attack_value is a card chosen for attack (provided that one attack was already done)
+    # here weensure that the attacker can only play cards that match the ongoing attack value, 
+    # maintaining the rules of the game. To prevent the case that NN chooses the card it does not posses
     if attack_value:
         valid_attacker_cards = [card for card in valid_attacker_cards if card[0] == attack_value]
    
@@ -67,5 +72,5 @@ def attack(attacker_net,
             
     game.players[attacker].remove(chosen_attackers_card)       
     return decision_to_continue_attack,attacker_card_prob, chosen_attackers_card, \
-        attacker_card_index, cards_on_a_table, cards_on_a_table, done, output_attacker
+        attacker_card_index, cards_on_a_table, done, output_attacker
 

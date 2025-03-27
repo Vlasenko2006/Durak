@@ -8,62 +8,78 @@ Created on Thu Mar 27 13:16:17 2025
 
 import tkinter as tk
 from PIL import Image, ImageTk, ImageDraw, ImageFont
-from neural_networks import attacker_net
+from neural_networks import CardNN
 import torch
 from durak_game import DurakGame
-# Define the cards for the upper and lower rows
-card_top = [
-    ("6", "clubs"),
-    ("K", "diamonds"),
-    ("Q", "hearts"),
-    ("J", "spades"),
-    ("7", "hearts"),
-    ("10", "spades"),
-    ("K", "hearts")
-]
-
-cards = [
-    ("5", "clubs"),
-    ("J", "diamonds"),
-    ("A", "hearts"),
-    ("Q", "spades"),
-    ("K", "hearts"),
-    ("K", "spades"),
-    ("Q", "hearts")
-]
-
-# Unicode characters for card suits
-suit_symbols = {
-    'clubs': '♣',
-    'diamonds': '♦',
-    'hearts': '♥',
-    'spades': '♠'
-}
-
-# Colors for suits
-suit_colors = {
-    'clubs': 'black',
-    'diamonds': 'red',
-    'hearts': 'red',
-    'spades': 'black'
-}
+from attack import attack
 
 
-game = DurakGame()
-deck = game.create_deck()
-player0 = attacker_net
-player0.load_state_dict(torch.load("attacker1_1100"))
 
 
-opponents_cards = game.players[0]
-my_cards = game.players[1]
+class gamer:
+    def __init__(self):
+        self.game = DurakGame()
+        self.deck = self.game.create_deck()
+        self.game.deal_cards()
+        self.trump = self.deck[-1]  # Last card in the shuffled deck is the trump card
+        self.trump_suit = self.trump[1]  # Suit of the trump card
+        self.player0 =  CardNN()
+        self.load_player()
+        self.played_cards = torch.zeros(1,36)
+        self.taken_cards = torch.zeros(2,36)
+        self.cards_on_a_table = torch.zeros(1, 36, dtype=torch.float32) 
+        self.opponents_cards = torch.zeros(1, 36, dtype=torch.float32) 
+        self.my_cards = torch.zeros(1, 36, dtype=torch.float32) 
+        self.opponents_cards = self.game.players[0]
+        self.my_cards = self.game.players[1]
+        self.not_playing_cards = self.played_cards.clone().float()  # Convert to Float to avoid type mismatch
+        
+    def load_player(self, checkpoint = "attacker1_1100"):
+        self.player0.load_state_dict(torch.load(checkpoint))
+        
+    def refill(self):
+        deck_status = self.game.refill_hands(self.opponents_cards,self.my_cards)
+        winner = "no winner yet"
+        if deck_status == 0:
+            if not self.game.players[0]:
+                winner = "You Lost"
+            if not self.game.players[1]:
+                winner = "You Win"
+        return winner
+    
+    def opponent_attack(self):
+        
+        attack_value = None # attack_value is a card (suit, value) that attacker (NN )chooses to attack
+        attack_flag = torch.tensor([1.], dtype=torch.float32, requires_grad=True).unsqueeze(0)
+        
+        decision_to_continue_attack,attacker_card_prob,\
+            chosen_attackers_card, attacker_card_index, \
+                self.cards_on_a_table, done, \
+                    output_attacker = attack([self.player0], 
+                           0,
+                           attack_value, 
+                           self.game,
+                           attack_flag,
+                           self.played_cards,
+                           self.cards_on_a_table,
+                           self.deck, 
+                           1, # episode = 1 
+                           verbose = False
+                           )
+        return decision_to_continue_attack,attacker_card_prob, chosen_attackers_card, \
+            attacker_card_index, done, output_attacker
 
-deck_status = game.refill_hands(opponents_cards,my_cards)
-# if deck_status == 0:
-#     if not game.players[0]:
-#         winner = "You Lost"
-#     if not game.players[1]:
-#         winner = "You Win"
+
+
+
+ # Convert to Float
+
+
+
+
+
+
+
 
 
 
