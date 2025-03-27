@@ -7,7 +7,6 @@ Created on Sat Mar 22 11:32:17 2025
 """
 import torch
 import torch.nn.functional as F
-from neural_networks import attacker_net, defender_net, attacker_optimizer, defender_optimizer
 from game_turns import game_turns
 import numpy as np
 
@@ -16,6 +15,7 @@ import numpy as np
  
 
 def gameset(game,
+            players,
             attack_flag,
             defend_flag,
             deck,
@@ -49,12 +49,6 @@ def gameset(game,
     big_loop_done = False
     loss_defender = torch.tensor([0.], dtype=torch.float32, requires_grad=True)
     loss_attacker = torch.tensor([0.], dtype=torch.float32, requires_grad=True)
-    
-    # if loss_attacker.grad != None:
-    #     loss_attacker.grad.zero()
-    #     print("Zeroing Grad")
-    # if loss_defender.grad != None:
-    #     loss_defender.grad.zero()
         
     counter = 0
     while not big_loop_done:
@@ -75,8 +69,8 @@ def gameset(game,
                                                                     deck,
                                                                     episode, 
                                                                     game_log,
-                                                                    attacker_net,
-                                                                    defender_net,
+                                                                    players[attacker],
+                                                                    players[defender],
                                                                     reward_value,
                                                                     counter, 
                                                                     margin_attacker,
@@ -118,4 +112,4 @@ def gameset(game,
         loss_defender = loss_defender + F.mse_loss(target_defender, Q_defender_previous)
     
     #print("BIG LOOP DONE")
-    return loss_attacker, loss_defender, game_log, attacker_net, defender_net
+    return loss_attacker, loss_defender, game_log, players

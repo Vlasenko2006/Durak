@@ -12,7 +12,7 @@ import matplotlib.pyplot as plt
 # Hyperparameters
 gamma = 0.99
 batch_size = 16
-num_episodes = 500
+num_episodes = 2500
 num_games_to_visualize = 3
 reward_value = torch.tensor([1.], dtype=torch.float32, requires_grad=True)
 margin_attacker = 0.
@@ -104,8 +104,8 @@ def train_networks():
 
 
         if episode % 100 == 0 and batch > 0:
-            torch.save(attacker_net.state_dict(), "attacker_" + str(episode))
-            torch.save(defender_net.state_dict(), "attacker_" + str(episode))
+            torch.save(attacker_net.state_dict(), "attacker1_" + str(episode))
+            torch.save(defender_net.state_dict(), "attacker1_" + str(episode))
     #Visualize the last 3 games
     plt.plot(moving_mean(accumulate_grad_att, window_size=5))
     plt.show()
@@ -117,4 +117,6 @@ def train_networks():
 
 if __name__ == "__main__":
     game_log, accumulate_grad_att, accumulate_grad_def = train_networks()
+    np.save("accumulate_grad_att1", accumulate_grad_att)
+    np.save("accumulate_grad_def1", accumulate_grad_def)
     #visualize_games(game_log)

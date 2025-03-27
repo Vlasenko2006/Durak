@@ -8,7 +8,7 @@ Created on Wed Mar 19 12:27:37 2025
 
 import torch
 import torch.nn as nn
-import torch.optim as optim
+
 
 class CardNN(nn.Module):
     def __init__(self, input_size=36 , output_size=37):
@@ -37,12 +37,3 @@ class CardNN(nn.Module):
         x = torch.relu(self.in2(self.fc2(x).unsqueeze(0)).squeeze(0))
         x = self.fc3(x)
         return self.softmax(x)  # Apply softmax to the output
-
-# Initialize neural networks for both players
-attacker_net = CardNN()
-defender_net = CardNN()
-
-lr = 1e-4
-# Optimizers for both networks
-attacker_optimizer = optim.Adam(attacker_net.parameters(), lr=lr)
-defender_optimizer = optim.Adam(defender_net.parameters(), lr=lr)
