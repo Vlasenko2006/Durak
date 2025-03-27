@@ -33,7 +33,10 @@ class gamer:
         self.opponents_cards = self.game.players[0]
         self.my_cards = self.game.players[1]
         self.not_playing_cards = self.played_cards.clone().float()  # Convert to Float to avoid type mismatch
+        self.margin_attacker = 0.5
+        self.margin_defender = 0.5 
         
+ 
     def load_player(self, checkpoint = "attacker1_1100"):
         self.player0.load_state_dict(torch.load(checkpoint))
         
@@ -66,8 +69,18 @@ class gamer:
                            1, # episode = 1 
                            verbose = False
                            )
-        return decision_to_continue_attack,attacker_card_prob, chosen_attackers_card, \
+        return players_decision, attacker_card_prob, chosen_attackers_card, \
             attacker_card_index, done, output_attacker
+            
+    def decision_to_continue_attack(self,players_decision):
+         # Attacker decides whether to continue attack
+         continue_attack = players_decision > self.margin_attacker  # Randomly decide to continue or stop
+         if not continue_attack:
+             self.played_cards = self.not_playing_cards.clone()
+             done = True
+             if verbose: print(f"Episode {episode + 1}: Attacker decides to stop the attack.")
+             break
+    return done
 
 
 
