@@ -1,28 +1,26 @@
 import tkinter as tk
 from PIL import Image, ImageTk, ImageDraw, ImageFont
-from neural_networks import attacker_net
-import torch
-from durak_game import DurakGame
+from gamer import gamer
 # Define the cards for the upper and lower rows
-card_top = [
-    ("6", "clubs"),
-    ("K", "diamonds"),
-    ("Q", "hearts"),
-    ("J", "spades"),
-    ("7", "hearts"),
-    ("10", "spades"),
-    ("K", "hearts")
-]
+# card_top = [
+#     ("6", "clubs"),
+#     ("K", "diamonds"),
+#     ("Q", "hearts"),
+#     ("J", "spades"),
+#     ("7", "hearts"),
+#     ("10", "spades"),
+#     ("K", "hearts")
+# ]
 
-cards = [
-    ("5", "clubs"),
-    ("J", "diamonds"),
-    ("A", "hearts"),
-    ("Q", "spades"),
-    ("K", "hearts"),
-    ("K", "spades"),
-    ("Q", "hearts")
-]
+# cards = [
+#     ("5", "clubs"),
+#     ("J", "diamonds"),
+#     ("A", "hearts"),
+#     ("Q", "spades"),
+#     ("K", "hearts"),
+#     ("K", "spades"),
+#     ("Q", "hearts")
+# ]
 
 # Unicode characters for card suits
 suit_symbols = {
@@ -41,18 +39,12 @@ suit_colors = {
 }
 
 
-game = DurakGame()
-game.create_deck()
-player0 = attacker_net
-player0.load_state_dict(torch.load("attacker1_1100"))
-
+gamer = gamer()
 
 
 class CardPlotter(tk.Tk):
     def __init__(self, card_width, 
                  card_height,
-                 num_closed_cards,
-                 num_open_cards,
                  button_text,
                  attack_flag,
                  deck_is_empty = False, 
@@ -62,28 +54,21 @@ class CardPlotter(tk.Tk):
         super().__init__()
         
         # Gameplay settings
+        self.gamer = gamer
+        self.deck = gamer.deck
         self.deck_is_empty = deck_is_empty 
         self.no_more_cards_left = no_more_cards_left
         self.button_text = button_text 
         self.mouse_clicks = 0
         self.cards_on_the_table = []  
         self.players_cards = []  
-        self.num_open_cards = num_open_cards
-        self.num_closed_cards = num_closed_cards
-        self.attack_flag = attack_flag
         self.is_destroying = False  # Flag to indicate whether the application is being destroyed
-        
-        
-        deck_status = game.refill_hands(attacker,defender)
-        if deck_status == 0:
-            if not game.players[attacker]:
-               # print("Loop is done")
-                big_loop_done = True
-            if not game.players[defender]:
-               # print("Loop is done")
-                big_loop_done = True
-        
-        
+
+
+        self.opponent_cards = gamer.game.players[0]        
+        self.my_cards = gamer.game.players[1]
+        self.num_closed_cards =len(self.opponent_cards)
+        self.num_open_cards =len(self.opponent_cards)
         
         
         self.title("Durak Game")
@@ -123,9 +108,9 @@ class CardPlotter(tk.Tk):
         self.table_card_labels = []  # Store references to cards placed on the table
 
         # Create and place closed card images at the top of the frame
-        self.create_closed_cards(num_closed_cards)
+        self.create_closed_cards(self.num_closed_cards)
         # Create and place open card images at the bottom of the frame
-        self.create_open_cards(num_open_cards)
+        self.create_open_cards(self.num_open_cards)
         # Draw the trump card perpendicular to the deck
         self.draw_trump_card_perpendicular()
         # Draw a card back opposite to the left side of the table
@@ -211,8 +196,8 @@ class CardPlotter(tk.Tk):
 
     def create_open_cards(self, num_open_cards):
         for i in range(num_open_cards):
-            rank = cards[i % len(cards)][0]
-            suit = cards[i % len(cards)][1]
+            rank = self.my_cards[i % len(self.my_cards)][0]
+            suit = self.my_cards[i % len(self.my_cards)][1]
             card_image = self.create_card_image(rank, suit)
             card_photo = ImageTk.PhotoImage(card_image)
             label = tk.Label(self.frame, image=card_photo, bg='grey')
@@ -274,7 +259,7 @@ class CardPlotter(tk.Tk):
             label_to_remove.grid_forget()
 
             # Get the rank and suit of the card to be added to the bottom row
-            rank, suit = card_top[len(card_top) - len(self.upper_card_labels) - 1]
+            rank, suit =self.opponent_cards[len(self.opponent_cards) - len(self.upper_card_labels) - 1]
             card_image = self.create_card_image(rank, suit)
             card_photo = ImageTk.PhotoImage(card_image)
             label = tk.Label(self.frame, image=card_photo, bg='grey')
@@ -331,29 +316,15 @@ if __name__ == "__main__":
     # Example usage with user-specified card dimensions and number of cards
     card_width = 150  # User-specified card width
     card_height = 200  # User-specified card height
-    num_closed_cards = 3  # User-specified number of closed cards
-    num_open_cards = 3  # User-specified number of open cards
+
+
     
     app = CardPlotter(card_width,
                       card_height,
-                      num_closed_cards,
-                      num_open_cards, 
+
                       button_text = "Finish the attack",
                       attack_flag = 1,
                       deck_is_empty=False, 
                       factor=3
                       )
     app.mainloop()
-    mouse_clicks = app.mouse_clicks
-    
-    app = CardPlotter(card_width, 
-                      card_height,
-                      num_closed_cards,
-                      num_open_cards,
-                      button_text = "Withdraw",
-                      attack_flag = -1,
-                      deck_is_empty=True, 
-                      no_more_cards_left = True, 
-                      factor=3)
-    app.mainloop()
-    mouse_clicks = app.mouse_clicks

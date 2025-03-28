@@ -14,8 +14,8 @@ from check_combinations import mask_invalid_cards, defender_can_beat
 
 def defence(game,
             defender_net,
-            state_defender,
-            defender,
+            state_defender,    # Obsolete
+            defender,          # NN's ID, which defends now. Either 0 or 1. 
             defend_flag,
             played_cards,
             cards_on_a_table,
