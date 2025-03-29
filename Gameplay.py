@@ -240,7 +240,13 @@ class CardPlotter(tk.Tk):
             label_to_remove.grid_forget()
 
             # Get the rank and suit of the card to be added to the bottom row
-            rank, suit =self.opponent_cards[len(self.opponent_cards) - len(self.upper_card_labels) - 1]
+            chosen_defender_card, done = opponent_defends(chosen_attackers_card, attacker_card_index)
+            
+            
+            # redo this part FIXME
+            rank, suit = chosen_defender_card 
+            
+            self.opponent_cards[len(self.opponent_cards) - len(self.upper_card_labels) - 1]
             card_image = self.create_card_image(rank, suit)
             card_photo = ImageTk.PhotoImage(card_image)
             label = tk.Label(self.frame, image=card_photo, bg='grey')
@@ -304,7 +310,7 @@ if __name__ == "__main__":
                       card_height,
 
                       button_text = "Finish the attack",
-                      attack_flag = 1,
+                      attack_flag = -1,
                       deck_is_empty=False, 
                       factor=3
                       )

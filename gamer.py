@@ -7,7 +7,7 @@ from defence import defence
 class gamer:
     def __init__(self):
         self.game = DurakGame()
-        self.deck = self.game.create_deck()
+        self.deck = self.game.deck
         self.trump = self.deck[-1]  # Last card in the shuffled deck is the trump card
         self.trump_suit = self.trump[1]  # Suit of the trump card
         self.player0 = CardNN()
@@ -24,6 +24,9 @@ class gamer:
         self.margin_defender = 0.5
         self.players_decision = 0
         self.continue_attack = False
+        self.Full_deck = [(rank, suit) for rank in ['6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A'] for suit in ['clubs', 'diamonds', 'hearts', 'spades']]
+            
+        print(self.opponents_cards)
 
     def load_player(self, checkpoint="attacker1_1100"):
         self.player0.load_state_dict(torch.load(checkpoint))
@@ -42,15 +45,21 @@ class gamer:
         attack_value = None  # attack_value is a card (suit, value) that attacker (NN )chooses to attack
         attack_flag = torch.tensor([1.], dtype=torch.float32, requires_grad=False).unsqueeze(0)
         
+        
+       # print("Opponent attacks cards = ", self.game.players[0])
+
+
+
+        
         self.players_decision, _, chosen_attackers_card, attacker_card_index, \
-                self.cards_on_a_table, done = attack(self.player0,  # Pass the model instance, not a list
+                self.cards_on_a_table, done, output_attacker = attack(self.player0,  # Pass the model instance, not a list
                            0,
                            attack_value, 
                            self.game,
                            attack_flag,
                            self.played_cards,
                            self.cards_on_a_table,
-                           self.deck, 
+                           self.Full_deck, 
                            1,  # episode = 1 
                            verbose=False
                            )
@@ -59,8 +68,8 @@ class gamer:
         print(f"Chosen attacker's card: {chosen_attackers_card}")
         print(f"Player's hand before removing the card: {self.game.players[0]}")
         
-        if chosen_attackers_card not in self.game.players[0]:
-            raise ValueError(f"Chosen card {chosen_attackers_card} is not in the player's hand.")
+        # if chosen_attackers_card not in self.game.players[0]:
+        #     raise ValueError(f"Chosen card {chosen_attackers_card} is not in the player's hand.")
         
         if not done:
             done = self.decision_to_continue_attack()
