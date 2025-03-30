@@ -21,7 +21,7 @@ class gamer:
         self.my_cards = self.game.players[1]
         self.not_playing_cards = self.played_cards.clone().float()  # Convert to Float to avoid type mismatch
         self.margin_attacker = 0.5
-        self.margin_defender = 0.5
+        self.margin_defender = 0.
         self.players_decision = 0
         self.continue_attack = False
         self.Full_deck = [(rank, suit) for rank in ['6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A'] for suit in ['clubs', 'diamonds', 'hearts', 'spades']]
@@ -102,9 +102,10 @@ class gamer:
                      chosen_attackers_card,
                      attacker_card_index,
                      self.margin_defender,
-                     self.deck
+                     self.Full_deck
                      )
         if self.defence_decision == "withdraw":
+            print('self.defence_decision  = ', self.defence_decision )
             done = True
         
         return chosen_defender_card, done

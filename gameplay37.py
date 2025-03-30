@@ -62,6 +62,7 @@ class CardPlotter(tk.Tk):
         self.mouse_clicks = 0
         self.cards_on_the_table = []  
         self.players_cards = []  
+        self.attack_flag = 1
         self.is_destroying = False  # Flag to indicate whether the application is being destroyed
 
 
@@ -323,7 +324,7 @@ if __name__ == "__main__":
                       card_height,
 
                       button_text = "Finish the attack",
-                      attack_flag = 1,
+                      attack_flag = -1,
                       deck_is_empty=False, 
                       factor=3
                       )

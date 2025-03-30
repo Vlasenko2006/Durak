@@ -9,7 +9,7 @@ gamer0 = gamer()
 
 # Get opponent's attacking card
 chosen_attackers_card, attacker_card_index, attack_done = gamer0.opponent_attacks()
-print(f"Opponent's attacking card: {chosen_attackers_card}, Index: {attacker_card_index}, Attack done: {attack_done}")
+#print(f"Opponent's attacking card: {chosen_attackers_card}, Index: {attacker_card_index}, Attack done: {attack_done}")
 
 
 # if not attack_done:

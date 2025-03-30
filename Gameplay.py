@@ -2,11 +2,17 @@ import tkinter as tk
 from PIL import Image, ImageTk, ImageDraw, ImageFont
 from gamer import gamer
 
+
+
+#values = ['6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A']
+        
+        
+        
 suit_symbols = {
-    'clubs': '♣',
-    'diamonds': '♦',
+    'spades': '♠',
     'hearts': '♥',
-    'spades': '♠'
+    'diamonds': '♦',
+    'clubs': '♣',
 }
 
 # Colors for suits
@@ -17,9 +23,7 @@ suit_colors = {
     'spades': 'black'
 }
 
-
 gamer = gamer()
-
 
 class CardPlotter(tk.Tk):
     def __init__(self, card_width, 
@@ -41,15 +45,16 @@ class CardPlotter(tk.Tk):
         self.mouse_clicks = 0
         self.cards_on_the_table = []  
         self.players_cards = []  
-        self.attack_flag = 1
+        self.attack_flag = attack_flag
         self.is_destroying = False  # Flag to indicate whether the application is being destroyed
-
 
         self.opponent_cards = gamer.game.players[0]        
         self.my_cards = gamer.game.players[1]
-        self.num_closed_cards =len(self.opponent_cards)
-        self.num_open_cards =len(self.opponent_cards)
-        
+        self.num_closed_cards = len(self.opponent_cards)
+        self.num_open_cards = len(self.my_cards)
+        self.my_card = None
+        self.opponents_card = None
+        self.opponent_card_index = None
         
         self.title("Durak Game")
 
@@ -101,7 +106,7 @@ class CardPlotter(tk.Tk):
 
         # Start the game based on the attack_flag
         if self.attack_flag == -1:
-            self.gamer.opponent_attacks()
+            self.opponents_card, self.opponent_card_index, self.done = self.gamer.opponent_attacks()
             #### self.after(1000, self.pop_card_from_top)   # here comes nn
 
     def create_card_image(self, rank, suit):
@@ -199,9 +204,12 @@ class CardPlotter(tk.Tk):
         
         # Get the clicked label
         clicked_label = event.widget
+        
+        # Get the card info (rank and suit) of the clicked card
+        self.my_card = clicked_label.card_info
 
         # Debug statement to check the clicked label
-        print(f"Clicked label: {clicked_label}")
+        print(f"Clicked label: {clicked_label}, Card info: {self.my_card}")
 
         # Ensure the clicked label exists in the list before removing it
         if clicked_label in self.lower_card_labels:
@@ -239,14 +247,18 @@ class CardPlotter(tk.Tk):
                 return
             label_to_remove.grid_forget()
 
+            print("my card = ", self.my_card)
+            self.done = False
+
             # Get the rank and suit of the card to be added to the bottom row
-            chosen_defender_card, done = opponent_defends(chosen_attackers_card, attacker_card_index)
-            
+            print("Done? = ", self.done)
+            self.opponents_card, self.done = self.gamer.opponent_defends(self.my_card, self.gamer.game.card_to_index(self.my_card))
+            print("Done? = ", self.done)
+            if self.done:
+                self.after(2000, self.finish_game)
             
             # redo this part FIXME
-            rank, suit = chosen_defender_card 
-            
-            self.opponent_cards[len(self.opponent_cards) - len(self.upper_card_labels) - 1]
+            rank, suit = self.opponents_card
             card_image = self.create_card_image(rank, suit)
             card_photo = ImageTk.PhotoImage(card_image)
             label = tk.Label(self.frame, image=card_photo, bg='grey')
@@ -268,7 +280,6 @@ class CardPlotter(tk.Tk):
                 print("Popping card from the top")
                 self.after(2000, self.finish_game)
 
-    
     def draw_card_back_opposite_left(self):
         if not self.deck_is_empty:
             closed_card_image = self.create_closed_card_image()
@@ -304,11 +315,8 @@ if __name__ == "__main__":
     card_width = 150  # User-specified card width
     card_height = 200  # User-specified card height
 
-
-    
     app = CardPlotter(card_width,
                       card_height,
-
                       button_text = "Finish the attack",
                       attack_flag = -1,
                       deck_is_empty=False, 

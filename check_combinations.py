@@ -30,15 +30,14 @@ def defender_can_beat(defenders_cards,
                       margin_defender,
                       verbose=False):
     
-  #  print("decision_to_defend , margin_defender", decision_to_defend , margin_defender)
+    print("decision_to_defend , margin_defender", decision_to_defend , margin_defender)
     if decision_to_defend > margin_defender:
         defence_decision = "decide_to_defend"
-        for defend_card in defenders_cards:
-            if game.can_beat(attack_card, defend_card) and not game.can_beat(attack_card, chosen_defender_card):
-                if verbose: print('Defender can beat, but chosen wrong card')
-                defence_decision = "failure"
-                break
-    else:
+        can_beat = any(game.can_beat(attack_card, defend_card) for defend_card in defenders_cards)
+        if can_beat and not game.can_beat(attack_card, chosen_defender_card):
+            if verbose: print('Defender can beat, but chosen wrong card')
+            defence_decision = "failure"
+        if not can_beat: defence_decision = "wrong_decision"
         defence_decision = "withdraw"
         
    # print("ATTACK = ", attack_card, "DEFEND = ", chosen_defender_card, "Defenders cards", defenders_cards, "TRUMP ", game.trump_suit  )

@@ -22,10 +22,15 @@ def attack(attacker_net,
            verbose = False
            ):
     
+    
+    
     # Attacker's turn
     done = False
+    print("Opponent attacks cards before filtering= ", game.players[attacker])
     # Get attackers cards (suit,value)     
     valid_attacker_cards = [card for card in game.players[attacker] if card in deck]
+    #print("Opponent attacks cards = ", valid_attacker_cards)
+
     
     # attack_value is a card chosen for attack (provided that one attack was already done)
     # here weensure that the attacker can only play cards that match the ongoing attack value, 
@@ -36,6 +41,9 @@ def attack(attacker_net,
     if not valid_attacker_cards:
         done = True
         if verbose: print(f"Episode {episode + 1}: No valid cards to attack.")
+
+    print("Opponent attacks cards = ", valid_attacker_cards)
+
     
     empty_index = torch.tensor([[-1]], dtype=torch.float32)
     state_attacker = torch.tensor(game.get_state(0), dtype=torch.float32, requires_grad=True).unsqueeze(0)
@@ -55,6 +63,13 @@ def attack(attacker_net,
     
     attacker_card_index = torch.argmax(masked_attacker_action_probs).item()
     chosen_attackers_card = game.index_to_card(attacker_card_index)
+    
+    # for i,j in enumerate(masked_attacker_action_probs):
+    #     print(game.index_to_card(i))
+    # print("Attackers card", chosen_attackers_card )
+    
+    # for i,j in enumerate(state_attacker):
+    #     print(game.index_to_card(i))
         
     # print("attacker_card_index = ", attacker_card_index, "masked_attacker_action_probs", masked_attacker_action_probs)
     attacker_card_prob = masked_attacker_action_probs[0,attacker_card_index]

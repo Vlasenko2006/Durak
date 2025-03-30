@@ -57,7 +57,7 @@ def gameset(game,
 
         
         played_cards, reward_attacker, reward_defender,\
-            output_defender, output_attacker, game_log = game_turns( game, 
+            output_defender, output_attacker, game_log = game_turns( game,   # output_attacker might be obsolete
                                                                     attacker,
                                                                     defender,
                                                                     attack_flag,
