@@ -43,8 +43,8 @@ def game_turns(game,
          
          decision_to_continue_attack,attacker_card_prob,\
              chosen_attackers_card, attacker_card_index, \
-                 cards_on_a_table, done, \
-                     output_attacker = attack(attacker_net, 
+                 cards_on_a_table, done, output_attacker, \
+                     mean_masked_attacker_action_probs = attack(attacker_net, 
                             attacker,
                             attack_value, 
                             game,
@@ -60,7 +60,8 @@ def game_turns(game,
          
          cards_on_a_table, defender_card_prob, \
          defence_decision, chosen_defender_card, \
-         output_defender = defence(game,
+         output_defender, probability_to_defend , \
+             mean_masked_defender_action_probs= defence(game,
                      defender_net,
                      state_defender,
                      defender,
@@ -83,6 +84,8 @@ def game_turns(game,
                          defence_decision,
                          defender_card_prob,
                          attacker_card_prob,
+                         mean_masked_attacker_action_probs,
+                         mean_masked_defender_action_probs,
                          episode,
                          step_number,
                          chosen_attackers_card,
@@ -95,6 +98,8 @@ def game_turns(game,
                          played_cards,
                          done,
                          counter,
+                         probability_to_defend,
+                         decision_to_continue_attack,
                          verbose = False)
 
 

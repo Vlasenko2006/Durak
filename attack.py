@@ -22,28 +22,23 @@ def attack(attacker_net,
            verbose = False
            ):
     
-    
-    
     # Attacker's turn
     done = False
-    print("Opponent attacks cards before filtering= ", game.players[attacker])
+    normalized_attacker_card_prob = torch.tensor([0.], dtype=torch.float32, requires_grad=True)
+    attacker_card_prob = torch.tensor([0.], dtype=torch.float32, requires_grad=True)
+    
     # Get attackers cards (suit,value)     
     valid_attacker_cards = [card for card in game.players[attacker] if card in deck]
-    #print("Opponent attacks cards = ", valid_attacker_cards)
-
     
     # attack_value is a card chosen for attack (provided that one attack was already done)
-    # here weensure that the attacker can only play cards that match the ongoing attack value, 
-    # maintaining the rules of the game. To prevent the case that NN chooses the card it does not posses
+    # here we ensure that the attacker can only play cards that match the ongoing attack value, 
+    # maintaining the rules of the game. To prevent the case that NN chooses the card it does not possess
     if attack_value:
         valid_attacker_cards = [card for card in valid_attacker_cards if card[0] == attack_value]
    
     if not valid_attacker_cards:
         done = True
         if verbose: print(f"Episode {episode + 1}: No valid cards to attack.")
-
-    print("Opponent attacks cards = ", valid_attacker_cards)
-
     
     empty_index = torch.tensor([[-1]], dtype=torch.float32)
     state_attacker = torch.tensor(game.get_state(0), dtype=torch.float32, requires_grad=True).unsqueeze(0)
@@ -64,16 +59,13 @@ def attack(attacker_net,
     attacker_card_index = torch.argmax(masked_attacker_action_probs).item()
     chosen_attackers_card = game.index_to_card(attacker_card_index)
     
-    # for i,j in enumerate(masked_attacker_action_probs):
-    #     print(game.index_to_card(i))
-    # print("Attackers card", chosen_attackers_card )
+    attacker_card_prob = masked_attacker_action_probs[0, attacker_card_index]
     
-    # for i,j in enumerate(state_attacker):
-    #     print(game.index_to_card(i))
-        
-    # print("attacker_card_index = ", attacker_card_index, "masked_attacker_action_probs", masked_attacker_action_probs)
-    attacker_card_prob = masked_attacker_action_probs[0,attacker_card_index]
-    
+    # Compute mean of masked_attacker_action_probs excluding attacker_card_index
+    masked_probs_excluding_index = masked_attacker_action_probs.clone()
+    masked_probs_excluding_index[0, attacker_card_index] = 0  # Set the value at attacker_card_index to 0
+    mean_masked_attacker_action_probs = masked_probs_excluding_index[masked_probs_excluding_index != 0].mean()
+
     cards_on_a_table = game.update_state(attacker,
                                          attacker_card_index,
                                          cards_on_a_table)
@@ -85,7 +77,7 @@ def attack(attacker_net,
         if attack_value is None:
             attack_value = chosen_attackers_card[0]
             
-    game.players[attacker].remove(chosen_attackers_card)       
-    return decision_to_continue_attack,attacker_card_prob, chosen_attackers_card, \
-        attacker_card_index, cards_on_a_table, done, output_attacker
-
+    game.players[attacker].remove(chosen_attackers_card)     
+    
+    return decision_to_continue_attack, attacker_card_prob, chosen_attackers_card, \
+        attacker_card_index, cards_on_a_table, done, output_attacker, mean_masked_attacker_action_probs
