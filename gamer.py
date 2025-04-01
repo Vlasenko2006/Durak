@@ -52,7 +52,7 @@ class gamer:
 
         
         self.players_decision, _, chosen_attackers_card, attacker_card_index, \
-                self.cards_on_a_table, done, output_attacker = attack(self.player0,  # Pass the model instance, not a list
+                self.cards_on_a_table, done, output_attacke, _= attack(self.player0,  # Pass the model instance, not a list
                            0,
                            attack_value, 
                            self.game,
@@ -92,7 +92,7 @@ class gamer:
         done = False
         
         self.cards_on_a_table, _, self.defence_decision, \
-        chosen_defender_card, output_defender = defence(self.game,
+        chosen_defender_card, output_defender, _,_ = defence(self.game,
                      self.player0,  # Pass the model instance, not a list
                      1,
                      0,
@@ -104,8 +104,9 @@ class gamer:
                      self.margin_defender,
                      self.Full_deck
                      )
-        if self.defence_decision == "withdraw":
+        if self.defence_decision == "withdraw" or self.defence_decision == "failure" or self.defence_decision == "wrong_decision":
             print('self.defence_decision  = ', self.defence_decision )
             done = True
+        print('self.defence_decision  = ', self.defence_decision )
         
-        return chosen_defender_card, done
+        return chosen_defender_card, self.defence_decision, done
