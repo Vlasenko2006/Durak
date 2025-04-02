@@ -54,29 +54,30 @@ def defence(game,
     
     cards_on_a_table = game.update_state(defender, defender_card_index, cards_on_a_table)
     
-    game.players[defender].remove(chosen_defender_card) #
     
-    defence_decision = defender_can_beat(game.players[defender],
-                                         chosen_attackers_card,
-                                         chosen_defender_card,
-                                         game,
-                                         probability_to_defend,
-                                         margin_defender
-                                         )
+    #print("game.players[defender] = ", game.players[defender])
     
-    # print("Defender cards_on_a_table", cards_on_a_table)
-    # print('========================================\n')
+    if game.players[defender]: 
     
-    
-    
-    
-    if defence_decision == "withdraw":
-     #   print("Before removing game.players[defender]", game.players[defender] , "\n")
-     #   print("cards_on_a_table", cards_on_a_table, "\n")
-        game.players[defender].extend(game.indexes_to_cards(cards_on_a_table))
-        cards_on_a_table = []
-     #   print("After removing game.players[defender]", game.players[defender], "LEN = ", len(game.players[defender]))
+        game.players[defender].remove(chosen_defender_card) #
         
-      #  print("==========================\n")
+        defence_decision = defender_can_beat(game.players[defender],
+                                             chosen_attackers_card,
+                                             chosen_defender_card,
+                                             game,
+                                             probability_to_defend,
+                                             margin_defender
+                                             )
     
+        
+        
+        if defence_decision == "withdraw":
+            game.players[defender].extend(game.indexes_to_cards(cards_on_a_table))
+            cards_on_a_table = []
+    else:
+        defence_decision = "No cards remainig, defender wins"
+
+
+            
+
     return cards_on_a_table, defender_card_prob, defence_decision, chosen_defender_card, output_defender, probability_to_defend, mean_masked_defender_action_probs
