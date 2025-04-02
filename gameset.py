@@ -18,7 +18,7 @@ def gameset(game,
             players,
             attack_flag,
             defend_flag,
-            deck,
+            full_deck,
             episode, 
             game_log,
             reward_value,
@@ -57,7 +57,8 @@ def gameset(game,
 
         
         played_cards, reward_attacker, reward_defender,\
-            output_defender, output_attacker, game_log = game_turns( game,   # output_attacker might be obsolete
+            output_defender, output_attacker,defence_decision , game_log = game_turns( 
+                                                                    game,   # output_attacker might be obsolete
                                                                     attacker,
                                                                     defender,
                                                                     attack_flag,
@@ -66,7 +67,7 @@ def gameset(game,
                                                                     taken_cards,
                                                                     state_attacker,
                                                                     state_defender,
-                                                                    deck,
+                                                                    full_deck,
                                                                     episode, 
                                                                     game_log,
                                                                     players[attacker],
@@ -84,7 +85,7 @@ def gameset(game,
             if not game.players[defender]:
                # print("Loop is done")
                 big_loop_done = True
-                
+  
         if any(log_entry['result'] == "Wrong card chosen" for log_entry in game_log): big_loop_done = True
         
         if np.mod(counter,2) == 0:
@@ -101,6 +102,8 @@ def gameset(game,
         else:
             target_attacker = Q_attacker_previous + gamma * reward_attacker
             target_defender = Q_defender_previous + gamma * reward_defender
+        
+        if defence_decision == "withdraw": counter += 1 # attacker can attack again
         
 
         # Update states

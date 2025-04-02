@@ -31,7 +31,7 @@ avg_mean_masked_defender_probs = np.zeros(num_episodes)
 attack_flag = torch.tensor([1.], dtype=torch.float32, requires_grad=True).unsqueeze(0)
 defend_flag = -1 * torch.tensor([1.], dtype=torch.float32, requires_grad=True).unsqueeze(0)
 
-lr = 2 * 1e-4
+lr = 5 * 1e-5
 
 # Function to save model, optimizer state, and arrays
 def save_checkpoint(state, filename):
@@ -66,7 +66,8 @@ def train_networks(load_model=False):
     
     global game_log, accumulate_grad_att, accumulate_grad_def, avg_attacker_card_probs, avg_defender_card_probs, avg_mean_masked_attacker_probs, avg_mean_masked_defender_probs  # Ensure we use the global variables
     # Define the deck of cards
-    deck = [(rank, suit) for rank in ['6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A'] for suit in ['clubs', 'diamonds', 'hearts', 'spades']]
+    game_instance = DurakGame()
+    full_deck = game_instance.get_deck()
     
     start_episode = 0
 
@@ -75,12 +76,12 @@ def train_networks(load_model=False):
         if last_checkpoint:
             start_episode = load_checkpoint(last_checkpoint, player_0, player_1, player_0_optimizer, player_1_optimizer)
             episode_num = int(last_checkpoint.split('_')[1].split('.')[0])
-            accumulate_grad_att = np.load(f"outputs/accumulate_grad_att_{episode_num}.npy")
-            accumulate_grad_def = np.load(f"outputs/accumulate_grad_def_{episode_num}.npy")
-            avg_attacker_card_probs = np.load(f"outputs/avg_attacker_card_probs_{episode_num}.npy")
-            avg_defender_card_probs = np.load(f"outputs/avg_defender_card_probs_{episode_num}.npy")
-            avg_mean_masked_attacker_probs = np.load(f"outputs/avg_mean_masked_attacker_probs_{episode_num}.npy")
-            avg_mean_masked_defender_probs = np.load(f"outputs/avg_mean_masked_defender_probs_{episode_num}.npy")
+            accumulate_grad_att[:episode_num] = np.load(f"outputs/accumulate_grad_att_{episode_num}.npy")[:episode_num]
+            accumulate_grad_def[:episode_num]  = np.load(f"outputs/accumulate_grad_def_{episode_num}.npy")[:episode_num]
+            avg_attacker_card_probs[:episode_num]  = np.load(f"outputs/avg_attacker_card_probs_{episode_num}.npy")[:episode_num]
+            avg_defender_card_probs[:episode_num]  = np.load(f"outputs/avg_defender_card_probs_{episode_num}.npy")[:episode_num]
+            avg_mean_masked_attacker_probs[:episode_num]  = np.load(f"outputs/avg_mean_masked_attacker_probs_{episode_num}.npy")[:episode_num]
+            avg_mean_masked_defender_probs[:episode_num]  = np.load(f"outputs/avg_mean_masked_defender_probs_{episode_num}.npy")[:episode_num]
 
     for episode in range(start_episode, num_episodes):
         
@@ -103,7 +104,7 @@ def train_networks(load_model=False):
                               attack_flag,
                               defend_flag,
                               episode,
-                              deck,
+                              full_deck,
                               game_log,
                               reward_value,
                               margin_attacker,
@@ -116,6 +117,10 @@ def train_networks(load_model=False):
         
         accumulate_grad_att[episode] = accumulated_loss_attacker.item()
         accumulate_grad_def[episode] = accumulated_loss_defender.item()
+        
+        
+        player_0_optimizer.zero_grad()
+        player_1_optimizer.zero_grad() 
 
         # Extract attacker and defender card probabilities from game_log
         attacker_card_probs_episode = [log['attacker_card_prob'] for log in game_log if 'attacker_card_prob' in log]

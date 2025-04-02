@@ -39,7 +39,8 @@ def game_turns(game,
 
     while not done:
          step_number += 1  # Increment step number
-         
+     #    print("DEFENDER ID", defender)
+     #    print("ATTACKER ID", attacker)
          
          decision_to_continue_attack,attacker_card_prob,\
              chosen_attackers_card, attacker_card_index, \
@@ -53,7 +54,7 @@ def game_turns(game,
                             cards_on_a_table,
                             deck, 
                             episode, 
-                            verbose = False
+                         #   verbose = False
                             )
 
          # Valid move, proceed with defense
@@ -77,7 +78,7 @@ def game_turns(game,
 
          if not done:
              done, played_cards, reward_attacker, \
-                 reward_defender, game_log=\
+                 reward_defender, game_log, defence_decision=\
                  rewards(game_log,
                          game,
                          reward_value,
@@ -101,6 +102,7 @@ def game_turns(game,
                          probability_to_defend,
                          decision_to_continue_attack,
                          verbose = False)
+        
 
 
     
@@ -124,4 +126,5 @@ def game_turns(game,
         # Update not_playing_cards to include cards on the table without duplication
          not_playing_cards = torch.logical_or(not_playing_cards, cards_on_a_table)
    # print("RFEWARD DEFENDER = ", reward_defender, "RFEWARD ATTACKER= ", reward_attacker)
-    return played_cards, reward_attacker, reward_defender, output_defender, output_attacker, game_log
+   # print("DONE = ", done)
+    return played_cards, reward_attacker, reward_defender, output_defender, output_attacker, defence_decision, game_log

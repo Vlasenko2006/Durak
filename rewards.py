@@ -113,4 +113,6 @@ def rewards(game_log,
     reward_attacker = reward_attacker - 1*torch.log(attacker_card_prob)  + 1.* torch.log( 1 + mean_masked_attacker_action_probs )
     reward_defender = reward_defender - 1*torch.log(defender_card_prob) + 1.* torch.log( 1 + mean_masked_defender_action_probs )
     
-    return done, played_cards, reward_attacker, reward_defender, game_log 
+
+    
+    return done, played_cards, reward_attacker, reward_defender, game_log, defence_decision 
