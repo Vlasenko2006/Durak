@@ -76,12 +76,12 @@ def train_networks(load_model=False):
         if last_checkpoint:
             start_episode = load_checkpoint(last_checkpoint, player_0, player_1, player_0_optimizer, player_1_optimizer)
             episode_num = int(last_checkpoint.split('_')[1].split('.')[0])
-            accumulate_grad_att[:episode_num] = np.load(f"outputs/accumulate_grad_att_{episode_num}.npy")[:episode_num]
-            accumulate_grad_def[:episode_num]  = np.load(f"outputs/accumulate_grad_def_{episode_num}.npy")[:episode_num]
-            avg_attacker_card_probs[:episode_num]  = np.load(f"outputs/avg_attacker_card_probs_{episode_num}.npy")[:episode_num]
-            avg_defender_card_probs[:episode_num]  = np.load(f"outputs/avg_defender_card_probs_{episode_num}.npy")[:episode_num]
-            avg_mean_masked_attacker_probs[:episode_num]  = np.load(f"outputs/avg_mean_masked_attacker_probs_{episode_num}.npy")[:episode_num]
-            avg_mean_masked_defender_probs[:episode_num]  = np.load(f"outputs/avg_mean_masked_defender_probs_{episode_num}.npy")[:episode_num]
+            accumulate_grad_att = np.load(f"outputs/accumulate_grad_att_{episode_num}.npy")
+            accumulate_grad_def = np.load(f"outputs/accumulate_grad_def_{episode_num}.npy")
+            avg_attacker_card_probs = np.load(f"outputs/avg_attacker_card_probs_{episode_num}.npy")
+            avg_defender_card_probs = np.load(f"outputs/avg_defender_card_probs_{episode_num}.npy")
+            avg_mean_masked_attacker_probs = np.load(f"outputs/avg_mean_masked_attacker_probs_{episode_num}.npy")
+            avg_mean_masked_defender_probs = np.load(f"outputs/avg_mean_masked_defender_probs_{episode_num}.npy")
 
     for episode in range(start_episode, num_episodes):
         
@@ -117,10 +117,6 @@ def train_networks(load_model=False):
         
         accumulate_grad_att[episode] = accumulated_loss_attacker.item()
         accumulate_grad_def[episode] = accumulated_loss_defender.item()
-        
-        
-        player_0_optimizer.zero_grad()
-        player_1_optimizer.zero_grad() 
 
         # Extract attacker and defender card probabilities from game_log
         attacker_card_probs_episode = [log['attacker_card_prob'] for log in game_log if 'attacker_card_prob' in log]
