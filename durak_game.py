@@ -20,12 +20,12 @@ class DurakGame:
 
     def deal_cards(self):
         for _ in range(6):
-            self.players[0].append(self.deck.pop())
-            self.players[1].append(self.deck.pop())
+            self.players[0].append(self.deck.pop(0))
+            self.players[1].append(self.deck.pop(0))
 
     def draw_card(self, player_index):
         if self.deck:
-            self.players[player_index].append(self.deck.pop())
+            self.players[player_index].append(self.deck.pop(0))
         else:
              print(f"No more cards left in the deck to draw for player {player_index + 1}.")
 
