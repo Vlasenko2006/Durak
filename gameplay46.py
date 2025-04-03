@@ -240,8 +240,6 @@ if __name__ == "__main__":
     card_width = 150  # User-specified card width
     card_height = 200  # User-specified card height
 
-    app = CardPlotter(button_text="Finish", attack_flag= -1, deck_is_empty=False, factor=3)
+    app = CardPlotter(button_text="Finish", attack_flag= - 1, deck_is_empty=False, factor=3)
     app.mainloop()
     print("Cards on the table:", app.cards_on_the_table)
-    
-    # FIX trump card, Fix attack_flag -1/1

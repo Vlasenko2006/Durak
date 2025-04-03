@@ -24,7 +24,7 @@ class gamer:
         self.margin_defender = 0.
         self.players_decision = 0
         self.continue_attack = False
-        self.Full_deck = [(rank, suit) for rank in ['6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A'] for suit in ['clubs', 'diamonds', 'hearts', 'spades']]
+        self.Full_deck = self.game.get_deck() #[(rank, suit) for rank in ['6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A'] for suit in ['clubs', 'diamonds', 'hearts', 'spades']]
             
         print(self.opponents_cards)
 
