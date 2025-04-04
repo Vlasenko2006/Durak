@@ -1,9 +1,23 @@
 # Durak Game with Reinforcement Learning
+# Durak Game with Adversarial Reinforcement Learning
 
-This repository contains an implementation of the card game Durak, enhanced with reinforcement learning for training neural networks to play the game. The code uses PyTorch for neural network modeling and training.
+Welcome to the Durak Game with Reinforcement Learning! In this repository, you'll find an implementation of the traditional shedding-type Russian card game Durak (The Fool), enhanced with adversarial reinforcement learning for training neural networks to play the game. In short: two neural networks learn to play the Durak card game against each other. A neural network gets a reward if it moves by the game rules and a penalty in the opposite case. The goal is to get rid of all your cards, and the neural network that fits the goal gets an additional reward. The game has an element of randomness as the cards are scrambled in the deck before it starts. Because of this randomness, the neural networks must elaborate their strategies: which cards to keep at the beginning of the game (strong cards, or trumps) and which ones to give up immediately. 
+
+This repository has a Gameplay.py GUI, allowing you to live play against one of the neural networks.  Below is an example of how this GUI looks like:
 
 
 ![Example of a fameplay](https://github.com/Vlasenko2006/Durak/blob/main/Durak_game.png)
+
+## Gameplay Rules
+
+Here are the basic rules:
+
+1. **Deck and Players**: The game uses a deck of 36 cards (6 to Ace in each suit). It can be played with 2 or more players.
+2. **Trump Card**: The last card dealt is placed face up and its suit becomes the trump suit for the game. The remaining deck is placed on top of it.
+3. **Attacking and Defending**: Players take turns attacking and defending. The attacker plays a card, and the defender must play a higher card of the same suit or a trump card to beat it.
+4. **Shedding Cards**: The attacker can continue to play cards of the same rank as any already played card. The defender must beat each card.
+5. **End of Turn**: If the defender successfully beats all cards, the turn ends and the next player becomes the attacker. If the defender cannot beat a card, they must take all the cards on the table, and the turn ends.
+6. **Winning and Losing**: The game continues until the deck is exhausted and one player remains with cards. This player is the "durak".
 
 
 ## Table of Contents
