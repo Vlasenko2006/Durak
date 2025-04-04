@@ -24,6 +24,7 @@ class CardPlotter(tk.Tk):
 
         self.opponent_cards = self.gamer.game.players[0]        
         self.my_cards = self.gamer.game.players[1]
+        if attack_flag == 0: attack_flag = self.gamer.game.get_player_with_smallest_card(attack_flag)
         self.num_closed_cards = len(self.opponent_cards)
         self.num_open_cards = len(self.my_cards)
         self.my_card = None
@@ -167,6 +168,10 @@ class CardPlotter(tk.Tk):
         if defense_card is None:
             self.finish_game(self.defence_decision)
             return
+        
+        if done:
+            print("Defence decision", self.defence_decision)
+            self.finish_game(self.defence_decision)
 
         rank, suit = defense_card
         card_image = card_im.create_card_image(rank, suit)
@@ -229,7 +234,7 @@ if __name__ == "__main__":
     trump = deck[-1]
     attacker = 0
     defender = 1
-    attack_flag = 1
+    attack_flag = 0
     counter = 0
     while not done:
         print("Deck before", deck)

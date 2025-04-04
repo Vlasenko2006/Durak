@@ -97,3 +97,23 @@ class DurakGame:
                 cards.append(self.index_to_card(i))
                 # print("Debug: cards", cards)
         return cards
+    
+    def get_player_with_smallest_card(self, attack_flag):
+        if attack_flag == 0:
+            min_value_order = float('inf')
+            player_with_min_card = None
+            value_order = {v: i for i, v in enumerate(['6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A'])}
+            
+            for player_id, player_cards in enumerate(self.players):
+                for card in player_cards:
+                    card_value = value_order[card[0]]
+                    if card_value < min_value_order:
+                        min_value_order = card_value
+                        player_with_min_card = player_id
+                        
+            print("player_with_min_card  = ", player_with_min_card )
+            if player_with_min_card == 0: 
+                attack_flag = 1
+            else:
+                attack_flag = -1
+        return attack_flag
