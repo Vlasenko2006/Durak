@@ -98,25 +98,6 @@ class Card_image:
         # Center the closed cards
         frame.grid_columnconfigure((0, len(opponent_cards) - 1), weight=1)
 
-    # def create_open_cards(self, card_plotter, my_cards, num_open_cards, row_spacing, on_card_click):
-    #     for i in range(num_open_cards):
-    #         rank = my_cards[i % len(my_cards)][0]
-    #         suit = my_cards[i % len(my_cards)][1]
-    #         card_image = self.create_card_image(rank, suit)
-    #         card_photo = ImageTk.PhotoImage(card_image)
-    #         label = tk.Label(card_plotter.frame, image=card_photo, bg='grey')
-    #         label.image = card_photo  # Store reference in label
-    #         label.grid(row=2, column=i, padx=10, pady=(row_spacing, 10), sticky="n")
-    #         label.bind("<Button-1>", on_card_click)  # Bind left mouse button click event
-    #         card_plotter.image_refs.append(card_photo)  # Store reference to prevent garbage collection
-    #         card_plotter.lower_card_labels.append(label)  # Store reference to lower row card labels
-    #         # Store the card information in the label
-    #         label.card_info = (rank, suit)
-
-        # # Center the open cards
-        # card_plotter.frame.grid_columnconfigure((0, num_open_cards - 1), weight=1)
-        
-
 
 
     def create_open_cards(self,my_cards, image_refs,lower_card_labels, on_card_click, frame):
