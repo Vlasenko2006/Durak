@@ -30,14 +30,13 @@ class DurakGame:
              print(f"No more cards left in the deck to draw for player {player_index + 1}.")
 
     def refill_hands(self, attacker, defender):
-        deck_status = 1
-        for player_index in [attacker, defender]:
-            while len(self.players[player_index]) < 6 and self.deck:
-                self.draw_card(player_index)
-            if not self.deck:
-                deck_status = 0
-    #    print(f"Debug: Remaining cards in the deck after refill_hands: {len(self.deck)}")
-        return deck_status
+        while self.deck and (len(self.players[attacker]) < 6 or len(self.players[defender]) < 6):
+            if len(self.players[attacker]) < 6:
+                self.draw_card(attacker)
+            if len(self.players[defender]) < 6:
+                self.draw_card(defender)
+        return 1 if self.deck else 0
+
 
     def get_state(self, player_index):
         state = [0] * 36  # Initialize state with zeros
