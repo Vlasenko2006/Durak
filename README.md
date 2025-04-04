@@ -2,6 +2,10 @@
 
 This repository contains an implementation of the card game Durak, enhanced with reinforcement learning for training neural networks to play the game. The code uses PyTorch for neural network modeling and training.
 
+
+![Example of a fameplay](https://github.com/Vlasenko2006/Durak/blob/main/Durak_game.png)
+
+
 ## Table of Contents
 - [Installation](#installation)
 - [Training the Networks](#training-the-networks)
