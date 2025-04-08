@@ -102,13 +102,13 @@ The reinforcement learning aspect is implemented using neural networks that make
 - Update for attacker 
 
 $$
-R_A = R_A - \log(p_{attacker})) + \log(1 + mean(p_{rest})))
+R_A = R_A - \log(p_{attacker}) + \log \left( 1 + mean(p_{rest}) \right)
 $$
 
 - Update for defender
 
 $$
-R_D = R_D - \log(p_{defender})) + \log(1 + mean(p_{rest})))
+R_D = R_D - \log (p_{defender}) + \log\left(1 + mean(p_{rest})\right)
 $$
 
 here $p_{attacker}$ and $p_{defender}$ are the probabilities of the attacking and defending cards respectively. The attack/defence probabilities for  the remaining cards in hands are and $p_{rest}$ 
@@ -123,10 +123,13 @@ Training visualization is done in the top level script **training_batch**. It pl
 - **moving_mean**: Computes the moving mean of a given array, used for smoothing visualization curves.
 
 
-Below are the convergence curves of the training process, showing the accumulated gradients for the attacker and defender:
+Below are the convergence curves of the training process, showing the accumulated gradients for the attacker
 
-![Attacker Convergence](images/attacker_convergence.png)
-![Defender Convergence](images/defender_convergence.png)
+![Attacker Convergence](https://github.com/Vlasenko2006/Durak/blob/main/attacker_13800.png)
+
+and defender
+
+![Defender Convergence](https://github.com/Vlasenko2006/Durak/blob/main/defender_13800.png))
 
 Note the behavior of attackers'/ defender's cost function. The defender's sharp drop in the first 1000 games is due to training the confidence in the chosen card rather than learning the game rules. Recall the confidence logarithmic terms in the rewards: when the neural network is unsure of its choice, these logarithms give the main contribution to the value of the cost function. When the neural network becomes confident in its choice (somewhere after 1000 games), its value drops and the neural network starts learning to play and win. Note that the value of the cost function of the defending neural network grows as the attacking network learns. 
 
