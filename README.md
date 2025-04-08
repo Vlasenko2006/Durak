@@ -57,7 +57,7 @@ To train the neural networks, run the `training_batch.py` script. This script tr
 
 ### Training Script
 
-This script initializes the game, sets up the neural networks and optimizers, and runs a training loop for a specified number of episodes. It includes functions for saving and loading model checkpoints, managing the game state, and updating the neural networks based on the rewards received from the game outcomes.
+- **training_batch**  is a top level script. It initializes the game, sets up the neural networks and optimizers, and runs a training loop for a specified number of episodes. It includes functions for saving and loading model checkpoints, managing the game state, and updating the neural networks based on the rewards received from the game outcomes.
 
 - **save_checkpoint**: Saves the current state of the model, optimizer, and training progress to a file.
 - **load_checkpoint**: Loads the state of the model, optimizer, and training progress from a file.
@@ -113,6 +113,13 @@ $$
 
 here $p_{attacker}$ and $p_{defender}$ are the probabilities of the attacking and defending cards respectively. The attack/defence probabilities for  the remaining cards in hands are and $p_{rest}$ 
 
+
+- **gameset**: Computes the total rewards for the entire game applying Bellman's equation, passing the resut to the MSE cost function. This script refills hands according to the game rules.  
+
+
+### Training's Visualization
+
+Training visualization is done in the top level script **training_batch**. It plots cost values for the attacker and defender NNs, and the probabilities of attacking and defending cards. To smootheng the training curves I used the 
 - **moving_mean**: Computes the moving mean of a given array, used for smoothing visualization curves.
 
 ## Example Usage
