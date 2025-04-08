@@ -86,28 +86,33 @@ This class defines the main mechanics of the Durak game, including deck creation
 - **indexes_to_cards**: Converts a list of card indexes to their corresponding cards.
 - **get_player_with_smallest_card**: Determines which player has the smallest card and sets the attack flag accordingly.
 
+#### Neural Network
+
+The neural network is defined in the `CardNN` class, which is a PyTorch neural network model. All but one its inputs correspond to the card's index in the deck. Each input gets one if thge corresponding card is in the player's hand or lies on the table and zero in the opposite case. The last input is the attacker flag. It equals one if the NN attacks or -1 if it defends. The NN's outputs are card's probabilites $p$. The card having higest probability is chosen for an attack/defence.   
+
 ### Reinforcement Learning
 
 The reinforcement learning aspect is implemented using neural networks that make decisions for the attacker and defender agents. These networks are trained using the reward signals derived from the game outcomes.
 
-#### Neural Network
-
-The neural network is defined in the `CardNN` class, which is a PyTorch neural network model.
-
-- **__init__**: Initializes the neural network layers and normalization layers.
-- **forward**: Defines the forward pass of the neural network, including the application of the softmax function for output probabilities.
 
 ### Rewards
 
-The reward function assigns positive or negative rewards based on the game outcomes, guiding the learning process of the neural networks.
 
-- **rewards**: Computes the rewards for the attacker and defender based on the game outcomes, updates the game log, and returns the updated state.
+- **reward**: Computes the rewards for the attacker and defender based on the game outcomes, updates the game log, and returns the updated state. It consists of two parts: constant rewards for attacker/defender $R_A$ and $R_D$ and their updates depending on how certain are the neural networks about their decisions.
+- Update for attacker 
 
-### Visualizing Training Results
+$$
+R_A = R_A - \log(p_{attacker})) + \log(1 + mean(p_{rest})))
+$$
 
-The script includes functions for visualizing the training results, such as the accumulated gradients and the average card probabilities.
+- Update for defender
 
-- **visualize_games**: Visualizes the game log and training progress.
+$$
+R_D = R_D - \log(p_{defender})) + \log(1 + mean(p_{rest})))
+$$
+
+here $p_{attacker}$ and $p_{defender}$ are the probabilities of the attacking and defending cards respectively. The attack/defence probabilities for  the remaining cards in hands are and $p_{rest}$ 
+
 - **moving_mean**: Computes the moving mean of a given array, used for smoothing visualization curves.
 
 ## Example Usage
